@@ -1,8 +1,8 @@
 <template>
   <div>
     <v-list>
-      <template v-for="(memo, i) in archivedList">
-        <v-list-item :key="`list-${i}`">
+      <template v-for="(memo, i) in archivedList" :key="`list-${i}`">
+        <v-list-item>
           <v-list-item-content>
             <v-list-item-title
               :data-test="`item-title-${i}`"
@@ -48,13 +48,13 @@
             </v-dialog>
           </v-list-item-action>
         </v-list-item>
-        <v-divider :key="`divider-${i}`"></v-divider>
+        <v-divider></v-divider>
       </template>
     </v-list>
   </div>
 </template>
 <script>
-import auth from "@/modules/auth.js";
+// import auth from "@/modules/auth.js";
 export default {
   data() {
     return {
@@ -69,77 +69,77 @@ export default {
     async showArchive() {
       try {
         const response = await fetch(
-          `${process.env.VUE_APP_API_BASE_URL}/archives`,
+          `${import.meta.env.VITE_API_BASE_URL}/archives`,
           {
+            method: "GET",
             cache: "no-cache",
-            credentials: "include",
+            mode: "cors",
             headers: {
-              "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
+              "Content-Type": "application/json",
             },
           }
         );
         this.archivedList = await response.json();
         this.$emit("pageName", "アーカイブ");
       } catch (error) {
-        console.log(error);
+        console.log(JSON.stringify(error));
       }
     },
     async unarchiveMemo(i) {
-      try {
-        const currentArchive = this.archivedList[i];
-        const response = await fetch(
-          `${process.env.VUE_APP_API_BASE_URL}/memos/${currentArchive.id}`,
-          {
-            cache: "no-cache",
-            method: "POST",
-            credentials: "include",
-            headers: {
-              "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
-            },
-          }
-        );
+      console.log(i);
 
-        const status = response.status;
-        if (status === 200) {
-          this.archivedList.splice(i, 1);
-        } else if (status === 401) {
-          this.$router.push("/login");
-        } else {
-          throw new Error(`unarchivedMemo resulted in ${status}`);
-        }
-      } catch (error) {
-        console.log(error);
-      }
+      // try {
+      //   const currentArchive = this.archivedList[i];
+      //   const response = await fetch(
+      //     `${import.meta.env.API_BASE_URL}/memos/${currentArchive.id}`,
+      //     {
+      //       cache: "no-cache",
+      //       method: "POST",
+      //     }
+      //   );
+      //   const status = response.status;
+      //   if (status === 200) {
+      //     this.archivedList.splice(i, 1);
+      //   } else if (status === 401) {
+      //     this.$router.push("/login");
+      //   } else {
+      //     throw new Error(`unarchivedMemo resulted in ${status}`);
+      //   }
+      // } catch (error) {
+      //   console.log(JSON.stringify(error));
+      // }
     },
     async deleteMemo(i) {
-      try {
-        const currentArchive = this.archivedList[i];
-        const response = await fetch(
-          `${process.env.VUE_APP_API_BASE_URL}/archives/${currentArchive.id}`,
-          {
-            cache: "no-cache",
-            method: "DELETE",
-            credentials: "include",
-            headers: {
-              "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
-            },
-          }
-        );
+      console.log(i);
 
-        const status = response.status;
-        if (status === 200) {
-          this.archivedList.splice(i, 1);
-        } else if (status === 400) {
-          auth.removeAccessToken();
-          this.$router.push("/login");
-        } else {
-          throw new Error(`deleteMemo resulted in ${status}`);
-        }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        this.deletionDialogShown = false;
-      }
+      // try {
+      //   const currentArchive = this.archivedList[i];
+      //   const response = await fetch(
+      //     `${process.env.VUE_APP_API_BASE_URL}/archives/${currentArchive.id}`,
+      //     {
+      //       cache: "no-cache",
+      //       method: "DELETE",
+      //       mode: "cors",
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //       },
+      //     }
+      //   );
+
+      //   const status = response.status;
+      //   if (status === 200) {
+      //     this.archivedList.splice(i, 1);
+      //   } else if (status === 400) {
+      //     auth.removeAccessToken();
+      //     this.$router.push("/login");
+      //   } else {
+      //     throw new Error(`deleteMemo resulted in ${status}`);
+      //   }
+      // } catch (error) {
+      //   console.log(error);
+      // } finally {
+      //   this.deletionDialogShown = false;
+      // }
     },
     cancelDeletion() {
       this.deletionDialogShown = false;

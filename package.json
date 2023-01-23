@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "mock": "vite --mode mock",
+    "sam": "vite --mode sam",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
@@ -14,6 +16,7 @@
     "vuetify": "^3.1.1"
   },
   "devDependencies": {
+    "@mdi/font": "^7.1.96",
     "@rushstack/eslint-patch": "^1.1.4",
     "@vitejs/plugin-vue": "^4.0.0",
     "@vue/eslint-config-prettier": "^7.0.0",

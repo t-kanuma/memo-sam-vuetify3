@@ -90,7 +90,6 @@
   </div>
 </template>
 <script>
-import { Auth } from "aws-amplify";
 export default {
   data() {
     return {
@@ -130,39 +129,27 @@ export default {
       this.pageName = pageName;
     },
     async logout() {
-      const NODE_ENV = process.env.NODE_ENV;
-      if (NODE_ENV === "local") {
-        try {
-          const response = await fetch(
-            `${process.env.VUE_APP_API_BASE_URL}/auth/logout`,
-            {
-              cache: "no-cache",
-              method: "POST",
-              credentials: "include",
-              headers: {
-                "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
-              },
-            }
-          );
-
-          const status = response.status;
-          if (status === 200) {
-            this.$router.push("/login");
-          } else {
-            throw new Error(`logout resulted in ${status}`);
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/auth/logout`,
+          {
+            method: "POST",
+            cache: "no-cache",
+            mode: "cors",
+            headers: {
+              "Content-Type": "application/json",
+            },
           }
-        } catch (error) {
-          console.log(error);
-        }
-      } else if (NODE_ENV === "amplify") {
-        try {
-          await Auth.signOut();
+        );
+
+        const status = response.status;
+        if (status === 200) {
           this.$router.push("/login");
-        } catch (error) {
-          console.log("error signing out: ", error);
+        } else {
+          throw new Error(`logout resulted in ${status}`);
         }
-      } else {
-        // noop
+      } catch (error) {
+        console.log(JSON.stringify(error));
       }
     },
   },

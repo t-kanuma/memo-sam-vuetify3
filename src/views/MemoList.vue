@@ -9,7 +9,9 @@
           <v-card>
             <v-card-title
               :class="{ 'text-decoration-line-through': memo.done }"
-              v-text="memo.title"
+              {{
+              memo.title
+              }}
             ></v-card-title>
             <v-card-text :class="{ 'text-decoration-line-through': memo.done }">
               {{ memo.text }}
@@ -44,7 +46,6 @@
   </div>
 </template>
 <script>
-import { Auth } from "aws-amplify";
 export default {
   data() {
     return {
@@ -73,33 +74,18 @@ export default {
   methods: {
     async showMemos() {
       try {
-        const NODE_ENV = process.env.NODE_ENV;
-        let response = null;
-
-        if (NODE_ENV === "local") {
-          response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/memos`, {
-            cache: "no-cache",
-            method: "GET",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
-            },
-          });
-        } else if (NODE_ENV === "amplify") {
-          const jwt = (await Auth.currentSession()).getIdToken().getJwtToken();
-          response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/memos`, {
+        console.log(import.meta.env.VITE_API_BASE_URL);
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/memos`,
+          {
             cache: "no-cache",
             method: "GET",
             mode: "cors",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${jwt}`,
             },
-          });
-        } else {
-          // noop
-        }
+          }
+        );
 
         this.memos = await response.json();
         this.$emit("favorite", this.favoriteTotal);
@@ -107,99 +93,97 @@ export default {
         this.$emit("pageName", "メモ");
       } catch (error) {
         // TODO 401ならログイン画面遷移、それ以外ならエラー画面遷移
-        console.log(error);
+        console.log(JSON.stringify(error));
       }
     },
     async archiveMemo(i) {
-      try {
-        const currentMemo = this.memos[i];
-        const response = await fetch(
-          `${process.env.VUE_APP_API_BASE_URL}/archives/${currentMemo.id}`,
-          {
-            cache: "no-cache",
-            method: "PUT",
-            credentials: "include",
-            headers: {
-              "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
-            },
-          }
-        );
-
-        const status = response.status;
-        if (status === 201) {
-          this.memos.splice(i, 1);
-        } else if (status === 401) {
-          this.$router.push("/login");
-        } else {
-          throw new Error(`archivedMemo resulted in ${status}`);
-        }
-      } catch (error) {
-        console.log(error);
-      }
+      console.log(i);
+      // try {
+      //   const currentMemo = this.memos[i];
+      //   const response = await fetch(
+      //     `${process.env.VUE_APP_API_BASE_URL}/archives/${currentMemo.id}`,
+      //     {
+      //       cache: "no-cache",
+      //       method: "PUT",
+      //       credentials: "include",
+      //       headers: {
+      //         "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
+      //       },
+      //     }
+      //   );
+      //   const status = response.status;
+      //   if (status === 201) {
+      //     this.memos.splice(i, 1);
+      //   } else if (status === 401) {
+      //     this.$router.push("/login");
+      //   } else {
+      //     throw new Error(`archivedMemo resulted in ${status}`);
+      //   }
+      // } catch (error) {
+      //   console.log(error);
+      // }
     },
     async toggleFavorite(i) {
-      const currentMemo = this.memos[i];
-      currentMemo.favorite = !currentMemo.favorite;
-
-      try {
-        const response = await fetch(
-          `${process.env.VUE_APP_API_BASE_URL}/memos/${currentMemo.id}`,
-          {
-            cache: "no-cache",
-            method: "PUT",
-            body: JSON.stringify(currentMemo),
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
-            },
-          }
-        );
-
-        const status = response.status;
-        if (status === 200) {
-          this.$emit("favorite", this.favoriteTotal);
-        } else if (status === 401) {
-          this.$router.push("/login");
-        } else {
-          throw new Error(`toggleFavorite resulted in ${status}`);
-        }
-      } catch (error) {
-        currentMemo.favorite = !currentMemo.favorite;
-        console.log(error);
-      }
+      console.log(i);
+      // const currentMemo = this.memos[i];
+      // currentMemo.favorite = !currentMemo.favorite;
+      // try {
+      //   const response = await fetch(
+      //     `${process.env.VUE_APP_API_BASE_URL}/memos/${currentMemo.id}`,
+      //     {
+      //       cache: "no-cache",
+      //       method: "PUT",
+      //       body: JSON.stringify(currentMemo),
+      //       credentials: "include",
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //         "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
+      //       },
+      //     }
+      //   );
+      //   const status = response.status;
+      //   if (status === 200) {
+      //     this.$emit("favorite", this.favoriteTotal);
+      //   } else if (status === 401) {
+      //     this.$router.push("/login");
+      //   } else {
+      //     throw new Error(`toggleFavorite resulted in ${status}`);
+      //   }
+      // } catch (error) {
+      //   currentMemo.favorite = !currentMemo.favorite;
+      //   console.log(error);
+      // }
     },
     async toggleTodoCheckmark(i) {
-      const currentMemo = this.memos[i];
-      currentMemo.done = !currentMemo.done;
-
-      try {
-        const response = await fetch(
-          `${process.env.VUE_APP_API_BASE_URL}/memos/${currentMemo.id}`,
-          {
-            cache: "no-cache",
-            method: "PUT",
-            body: JSON.stringify(currentMemo),
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
-            },
-          }
-        );
-
-        const status = response.status;
-        if (status === 200) {
-          this.$emit("todoDone", this.todoDonePercentage);
-        } else if (status === 401) {
-          this.$router.push("/login");
-        } else {
-          throw new Error(`toggleTodoCheckmark resulted in ${status}`);
-        }
-      } catch (error) {
-        currentMemo.done = !currentMemo.done;
-        console.log(error);
-      }
+      console.log(i);
+      // const currentMemo = this.memos[i];
+      // currentMemo.done = !currentMemo.done;
+      // try {
+      //   const response = await fetch(
+      //     `${process.env.VUE_APP_API_BASE_URL}/memos/${currentMemo.id}`,
+      //     {
+      //       cache: "no-cache",
+      //       method: "PUT",
+      //       body: JSON.stringify(currentMemo),
+      //       credentials: "include",
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //         "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
+      //       },
+      //     }
+      //   );
+      //   const status = response.status;
+      //   if (status === 200) {
+      //     this.$emit("todoDone", this.todoDonePercentage);
+      //   } else if (status === 401) {
+      //     this.$router.push("/login");
+      //   } else {
+      //     throw new Error(`toggleTodoCheckmark resulted in ${status}`);
+      //   }
+      // } catch (error) {
+      //   currentMemo.done = !currentMemo.done;
+      //   console.log(error);
+      // }
     },
     createNewMemo() {
       // TODO TODO
