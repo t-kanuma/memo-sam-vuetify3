@@ -14,6 +14,7 @@
         <v-card-text>
           <v-text-field
             v-model="loginName"
+            variant="underlined"
             label="ユーザー名"
             prepend-icon="mdi-account-circle"
             color="accent-lighten-1"
@@ -23,6 +24,7 @@
           ></v-text-field>
           <v-text-field
             v-model="password"
+            variant="underlined"
             autocomplete
             :type="passwordHidden ? 'password' : 'text'"
             label="パスワード"
@@ -43,24 +45,22 @@
 </template>
 <script>
 export default {
-  data() {
-    return {
-      loginName: null,
-      password: null,
-      passwordHidden: true,
-      nameRules: [
-        (v) => !!v || "必須です。",
-        (v) => (v || "").length <= 8 || "8文字以下にしてください",
-        (v) => {
-          var reg = new RegExp(/^[a-zA-Z1-9]+$/);
-          return reg.test(v) || "英字または数字のみにしてください。";
-        },
-      ],
-    };
-  },
+  data: () => ({
+    loginName: null,
+    password: null,
+    passwordHidden: true,
+    nameRules: [
+      (v) => !!v || "必須です。",
+      (v) => (v || "").length <= 8 || "8文字以下にしてください",
+      (v) => {
+        var reg = new RegExp(/^[a-zA-Z1-9]+$/);
+        return reg.test(v) || "英字または数字のみにしてください。";
+      },
+    ],
+  }),
   methods: {
     async login() {
-      if (this.$refs.form.validate()) {
+      if ((await this.$refs.form.validate()).valid) {
         try {
           const response = await fetch(
             `${import.meta.env.VITE_API_BASE_URL}/auth/login`,
