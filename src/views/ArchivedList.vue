@@ -1,41 +1,37 @@
 <template>
   <div>
     <v-list>
-      <template v-for="(memo, i) in archivedList" :key="`list-${i}`">
-        <v-list-item>
-          <v-list-item-title
-            :data-test="`item-title-${i}`"
-            class="font-weight-bold"
-          >
-            {{ memo.title }}
-          </v-list-item-title>
-          <span :data-test="`item-content-${i}`">{{ memo.text }}</span>
+      <v-list-item v-for="(memo, i) in archivedList" :key="`list-${i}`">
+        <v-list-item-title class="font-weight-bold">
+          {{ memo.title }}
+        </v-list-item-title>
+        <span>{{ memo.text }}</span>
+        <template v-slot:append>
           <v-list-item-action>
-            <v-btn icon @click="unarchiveMemo(i)"
+            <v-btn variant="flat" icon @click="unarchiveMemo(i)"
               ><v-icon color="secondary">mdi-package-up</v-icon></v-btn
             >
           </v-list-item-action>
+
           <v-list-item-action>
             <v-dialog v-model="deletionDialogShown" max-width="30%">
               <template v-slot:activator="{ props }">
-                <v-btn :data-test="`delete-${i}`" v-bind="props" icon>
+                <v-btn v-bind="props" icon variant="flat">
                   <v-icon color="secondary">mdi-delete</v-icon>
                 </v-btn>
               </template>
               <v-card>
-                <v-toolbar color="accent" class="white--text">Warn!</v-toolbar>
+                <v-toolbar color="accent" class="px-4 text-white"
+                  >Warn!</v-toolbar
+                >
                 <v-card-text class="pa-4">
-                  <span class="glay--text"
+                  <span class="text-glay"
                     >このメモは完全に削除されます。<br />よろしいですか？</span
                   >
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn
-                    :data-test="`delete-${i}-final`"
-                    color="accent"
-                    @click="deleteMemo(i)"
-                  >
+                  <v-btn color="accent" variant="flat" @click="deleteMemo(i)">
                     OK
                   </v-btn>
                   <v-btn color="accent" text @click="cancelDeletion()">
@@ -45,9 +41,9 @@
               </v-card>
             </v-dialog>
           </v-list-item-action>
-        </v-list-item>
+        </template>
         <v-divider></v-divider>
-      </template>
+      </v-list-item>
     </v-list>
   </div>
 </template>

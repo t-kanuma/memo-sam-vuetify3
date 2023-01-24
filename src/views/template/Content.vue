@@ -28,7 +28,7 @@
 
     <!-- サイドバー -->
     <v-navigation-drawer v-model="navDrawn" app temporary>
-      <v-list-item>
+      <v-list-item class="my-3">
         <v-list-item-title class="text-h6"
           >シンプルメモアプリ</v-list-item-title
         >
