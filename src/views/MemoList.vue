@@ -6,28 +6,22 @@
       <v-row dense>
         <!-- レスポンシブ:  デフォルトは1列(12/12)して、viewportがsm以上であれば3列(12/4)にする。-->
         <v-col v-for="(memo, i) in memos" :key="i" cols="12" sm="4">
-          <v-card>
-            <v-card-title
-              :class="{ 'text-decoration-line-through': memo.done }"
-              {{
-              memo.title
-              }}
-            ></v-card-title>
-            <v-card-text :class="{ 'text-decoration-line-through': memo.done }">
-              {{ memo.text }}
-            </v-card-text>
+          <v-card
+            :title="memo.title"
+            :class="{ 'text-decoration-line-through': memo.done }"
+            :text="memo.text"
+          >
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn icon color="secondary" @click="toggleTodoCheckmark(i)">
                 <v-icon v-if="memo.done">mdi-checkbox-outline</v-icon>
                 <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
               </v-btn>
-              <v-btn
-                icon
-                :color="memo.favorite ? 'pink' : ''"
-                @click="toggleFavorite(i)"
-              >
-                <v-icon>mdi-heart</v-icon>
+              <v-btn icon @click="toggleFavorite(i)">
+                <v-icon color="pink" v-show="!memo.favorite"
+                  >mdi-heart-outline</v-icon
+                >
+                <v-icon color="pink" v-show="memo.favorite">mdi-heart</v-icon>
               </v-btn>
               <v-btn color="accent" icon @click="archiveMemo(i)">
                 <v-icon>mdi-archive</v-icon>
@@ -39,7 +33,13 @@
     </v-container>
 
     <div class="float-button-wrapper">
-      <v-btn color="accent" fab @click="createNewMemo()" class="mr-3 mb-3">
+      <v-btn
+        color="accent"
+        icon
+        @click="createNewMemo()"
+        class="mr-5 mb-5"
+        size="large"
+      >
         <v-icon>mdi-plus</v-icon>
       </v-btn>
     </div>
@@ -72,7 +72,7 @@ export default {
   methods: {
     async showMemos() {
       try {
-        console.log(import.meta.env.VITE_API_BASE_URL);
+        // console.log(import.meta.env.VITE_API_BASE_URL);
         const response = await fetch(
           `${import.meta.env.VITE_API_BASE_URL}/memos`,
           {
@@ -96,6 +96,7 @@ export default {
     },
     async archiveMemo(i) {
       console.log(i);
+      alert("実装中");
       // try {
       //   const currentMemo = this.memos[i];
       //   const response = await fetch(
@@ -123,6 +124,7 @@ export default {
     },
     async toggleFavorite(i) {
       console.log(i);
+      alert("実装中");
       // const currentMemo = this.memos[i];
       // currentMemo.favorite = !currentMemo.favorite;
       // try {
@@ -154,6 +156,7 @@ export default {
     },
     async toggleTodoCheckmark(i) {
       console.log(i);
+      alert("実装中");
       // const currentMemo = this.memos[i];
       // currentMemo.done = !currentMemo.done;
       // try {

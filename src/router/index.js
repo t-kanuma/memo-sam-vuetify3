@@ -13,15 +13,18 @@ const router = createRouter({
       path: "/",
       component: Content,
       meta: { requiresAuth: true },
+      redirect: () => {
+        return { name: "MemoList" };
+      },
       children: [
         {
-          path: "/",
+          path: "/memos",
           name: "MemoList",
           component: MemoList,
           meta: { requiresAuth: true },
         },
         {
-          path: "/archived",
+          path: "/archives",
           name: "ArchivedList",
           component: ArchivedList,
           meta: { requiresAuth: true },

@@ -18,21 +18,9 @@
         <v-icon class="white--text">mdi-heart</v-icon>
         <span class="white--text">{{ favoriteTotal }} </span>
       </v-btn>
-      <v-menu transition="slide-y-transition" bottom offset-y min-width="12rem">
-        <template v-slot:activator="{ props }">
-          <v-btn icon color="white" v-bind="props">
-            <v-icon class="white--text">mdi-account</v-icon>
-          </v-btn>
-        </template>
-        <v-card>
-          <div class="d-flex justify-start align-center py-2 px-2">
-            <v-avatar color="secondary"
-              ><span class="white--text">{{ userInitial }} </span></v-avatar
-            >
-            <span class="ml-3">{{ userName }}</span>
-          </div>
-        </v-card>
-      </v-menu>
+      <v-btn icon color="white" v-bind="props">
+        <v-icon class="white--text">mdi-account</v-icon>
+      </v-btn>
       <v-btn icon color="white" @click="logout()">
         <v-icon class="white--text">mdi-logout</v-icon>
       </v-btn>
@@ -108,11 +96,11 @@ export default {
     favoriteTotal: null,
     todoDonePercentage: null,
     menus: [
-      { icon: "mdi-collage", text: "メモ", to: "/" },
+      { icon: "mdi-collage", text: "メモ", to: "/memos" },
       {
         icon: "mdi-archive",
         text: "アーカイブ",
-        to: "/archived",
+        to: "/archives",
       },
     ],
   }),
