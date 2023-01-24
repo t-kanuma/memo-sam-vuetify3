@@ -19,8 +19,8 @@
         <span class="white--text">{{ favoriteTotal }} </span>
       </v-btn>
       <v-menu transition="slide-y-transition" bottom offset-y min-width="12rem">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn icon color="white" v-bind="attrs" v-on="on">
+        <template v-slot:activator="{ props }">
+          <v-btn icon color="white" v-bind="props">
             <v-icon class="white--text">mdi-account</v-icon>
           </v-btn>
         </template>
@@ -41,12 +41,10 @@
     <!-- サイドバー -->
     <v-navigation-drawer v-model="navDrawn" app temporary>
       <v-list-item>
-        <v-list-item-content>
-          <v-list-item-title class="text-h6"
-            >シンプルメモアプリ</v-list-item-title
-          >
-          <v-list-item-subtitle> ただのサンプルアプリです</v-list-item-subtitle>
-        </v-list-item-content>
+        <v-list-item-title class="text-h6"
+          >シンプルメモアプリ</v-list-item-title
+        >
+        <v-list-item-subtitle> ただのサンプルアプリです</v-list-item-subtitle>
       </v-list-item>
       <v-divider></v-divider>
 
@@ -57,20 +55,17 @@
           link
           @click="closeMenu()"
           :to="menu.to"
+          :prepend-icon="menu.icon"
+          color="primary"
         >
-          <v-list-item-icon>
-            <v-icon color="primary">{{ menu.icon }}</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>{{ menu.text }}</v-list-item-title>
-          </v-list-item-content>
+          <v-list-item-title>{{ menu.text }}</v-list-item-title>
         </v-list-item>
       </v-list>
       <template v-slot:append>
         <v-list>
           <v-list-item>
             <v-switch
-              v-model="$vuetify.theme.dark"
+              @click="toggleTheme"
               inset
               label="ダークモード"
             ></v-switch>
@@ -90,7 +85,21 @@
   </div>
 </template>
 <script>
+import { useTheme } from "vuetify";
 export default {
+  setup() {
+    const theme = useTheme();
+
+    return {
+      theme,
+      toggleTheme: () => {
+        theme.global.name.value =
+          theme.global.name.value === "myCustomLightTheme"
+            ? "myCustomDarkTheme"
+            : "myCustomLightTheme";
+      },
+    };
+  },
   data: () => ({
     userName: null,
     pageName: null,

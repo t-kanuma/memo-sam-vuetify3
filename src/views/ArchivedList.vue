@@ -3,15 +3,13 @@
     <v-list>
       <template v-for="(memo, i) in archivedList" :key="`list-${i}`">
         <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title
-              :data-test="`item-title-${i}`"
-              class="font-weight-bold"
-            >
-              {{ memo.title }}
-            </v-list-item-title>
-            <span :data-test="`item-content-${i}`">{{ memo.text }}</span>
-          </v-list-item-content>
+          <v-list-item-title
+            :data-test="`item-title-${i}`"
+            class="font-weight-bold"
+          >
+            {{ memo.title }}
+          </v-list-item-title>
+          <span :data-test="`item-content-${i}`">{{ memo.text }}</span>
           <v-list-item-action>
             <v-btn icon @click="unarchiveMemo(i)"
               ><v-icon color="secondary">mdi-package-up</v-icon></v-btn
@@ -19,8 +17,8 @@
           </v-list-item-action>
           <v-list-item-action>
             <v-dialog v-model="deletionDialogShown" max-width="30%">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn :data-test="`delete-${i}`" v-bind="attrs" v-on="on" icon>
+              <template v-slot:activator="{ props }">
+                <v-btn :data-test="`delete-${i}`" v-bind="props" icon>
                   <v-icon color="secondary">mdi-delete</v-icon>
                 </v-btn>
               </template>
@@ -85,6 +83,7 @@ export default {
     },
     async unarchiveMemo(i) {
       console.log(i);
+      alert("実装中");
 
       // try {
       //   const currentArchive = this.archivedList[i];
@@ -109,6 +108,7 @@ export default {
     },
     async deleteMemo(i) {
       console.log(i);
+      alert("実装中");
 
       // try {
       //   const currentArchive = this.archivedList[i];
