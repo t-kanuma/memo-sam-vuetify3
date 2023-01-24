@@ -47,13 +47,11 @@
 </template>
 <script>
 export default {
-  data() {
-    return {
-      initLoaded: false,
-      archivingDialogShown: false,
-      memos: [],
-    };
-  },
+  data: () => ({
+    initLoaded: false,
+    archivingDialogShown: false,
+    memos: [],
+  }),
   async created() {
     this.showMemos();
   },

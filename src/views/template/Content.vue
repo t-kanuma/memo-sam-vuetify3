@@ -91,24 +91,22 @@
 </template>
 <script>
 export default {
-  data() {
-    return {
-      userName: null,
-      pageName: null,
-      navDrawn: false,
-      currentPageTitle: null,
-      favoriteTotal: null,
-      todoDonePercentage: null,
-      menus: [
-        { icon: "mdi-collage", text: "メモ", to: "/" },
-        {
-          icon: "mdi-archive",
-          text: "アーカイブ",
-          to: "/archived",
-        },
-      ],
-    };
-  },
+  data: () => ({
+    userName: null,
+    pageName: null,
+    navDrawn: false,
+    currentPageTitle: null,
+    favoriteTotal: null,
+    todoDonePercentage: null,
+    menus: [
+      { icon: "mdi-collage", text: "メモ", to: "/" },
+      {
+        icon: "mdi-archive",
+        text: "アーカイブ",
+        to: "/archived",
+      },
+    ],
+  }),
   created() {},
   computed: {
     userInitial() {

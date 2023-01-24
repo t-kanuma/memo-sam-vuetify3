@@ -56,12 +56,10 @@
 <script>
 // import auth from "@/modules/auth.js";
 export default {
-  data() {
-    return {
-      deletionDialogShown: false,
-      archivedList: [],
-    };
-  },
+  data: () => ({
+    deletionDialogShown: false,
+    archivedList: [],
+  }),
   created() {
     this.showArchive();
   },

@@ -43,13 +43,6 @@ const vuetify = createVuetify({
       myCustomDarkTheme,
     },
   },
-  // icons: {
-  //   defaultSet: "mdi",
-  //   aliases,
-  //   sets: {
-  //     mdi,
-  //   },
-  // },
 });
 
 createApp(App).use(router).use(vuetify).mount("#app");
