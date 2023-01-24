@@ -17,7 +17,7 @@
             variant="underlined"
             label="ユーザー名"
             prepend-icon="mdi-account-circle"
-            color="accent-lighten-1"
+            color="accent"
             :counter="8"
             :rules="nameRules"
             class="mb-3"
@@ -31,7 +31,7 @@
             prepend-icon="mdi-lock"
             :append-icon="passwordHidden ? 'mdi-eye-off' : 'mdi-eye'"
             @click:append="passwordHidden = !passwordHidden"
-            color="accent-lighten-1"
+            color="accent"
             :counter="8"
             :rules="nameRules"
           ></v-text-field> </v-card-text
