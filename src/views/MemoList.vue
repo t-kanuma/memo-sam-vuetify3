@@ -45,153 +45,147 @@
     </div>
   </div>
 </template>
-<script>
-export default {
-  data: () => ({
-    initLoaded: false,
-    archivingDialogShown: false,
-    memos: [],
-  }),
-  async created() {
-    this.showMemos();
-  },
-  computed: {
-    favoriteTotal() {
-      const favoriteTotal = this.memos.filter((memo) => {
-        return memo.favorite === true;
-      }).length;
-      return favoriteTotal;
-    },
-    todoDonePercentage() {
-      const todoDoneTotal = this.memos.filter((memo) => {
-        return memo.done === true;
-      }).length;
-      return (todoDoneTotal / this.memos.length) * 100;
-    },
-  },
-  methods: {
-    async showMemos() {
-      try {
-        // console.log(import.meta.env.VITE_API_BASE_URL);
-        const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/memos`,
-          {
-            cache: "no-cache",
-            method: "GET",
-            mode: "cors",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+<script setup>
+import { onMounted, ref } from "vue";
+onMounted(showMemos());
 
-        this.memos = await response.json();
-        this.$emit("favorite", this.favoriteTotal);
-        this.$emit("todoDone", this.todoDonePercentage);
-        this.$emit("pageName", "メモ");
-      } catch (error) {
-        // TODO 401ならログイン画面遷移、それ以外ならエラー画面遷移
-        console.log(JSON.stringify(error));
-      }
-    },
-    async archiveMemo(i) {
-      console.log(i);
-      alert("実装中");
-      // try {
-      //   const currentMemo = this.memos[i];
-      //   const response = await fetch(
-      //     `${process.env.VUE_APP_API_BASE_URL}/archives/${currentMemo.id}`,
-      //     {
-      //       cache: "no-cache",
-      //       method: "PUT",
-      //       credentials: "include",
-      //       headers: {
-      //         "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
-      //       },
-      //     }
-      //   );
-      //   const status = response.status;
-      //   if (status === 201) {
-      //     this.memos.splice(i, 1);
-      //   } else if (status === 401) {
-      //     this.$router.push("/login");
-      //   } else {
-      //     throw new Error(`archivedMemo resulted in ${status}`);
-      //   }
-      // } catch (error) {
-      //   console.log(error);
-      // }
-    },
-    async toggleFavorite(i) {
-      console.log(i);
-      alert("実装中");
-      // const currentMemo = this.memos[i];
-      // currentMemo.favorite = !currentMemo.favorite;
-      // try {
-      //   const response = await fetch(
-      //     `${process.env.VUE_APP_API_BASE_URL}/memos/${currentMemo.id}`,
-      //     {
-      //       cache: "no-cache",
-      //       method: "PUT",
-      //       body: JSON.stringify(currentMemo),
-      //       credentials: "include",
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //         "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
-      //       },
-      //     }
-      //   );
-      //   const status = response.status;
-      //   if (status === 200) {
-      //     this.$emit("favorite", this.favoriteTotal);
-      //   } else if (status === 401) {
-      //     this.$router.push("/login");
-      //   } else {
-      //     throw new Error(`toggleFavorite resulted in ${status}`);
-      //   }
-      // } catch (error) {
-      //   currentMemo.favorite = !currentMemo.favorite;
-      //   console.log(error);
-      // }
-    },
-    async toggleTodoCheckmark(i) {
-      console.log(i);
-      alert("実装中");
-      // const currentMemo = this.memos[i];
-      // currentMemo.done = !currentMemo.done;
-      // try {
-      //   const response = await fetch(
-      //     `${process.env.VUE_APP_API_BASE_URL}/memos/${currentMemo.id}`,
-      //     {
-      //       cache: "no-cache",
-      //       method: "PUT",
-      //       body: JSON.stringify(currentMemo),
-      //       credentials: "include",
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //         "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
-      //       },
-      //     }
-      //   );
-      //   const status = response.status;
-      //   if (status === 200) {
-      //     this.$emit("todoDone", this.todoDonePercentage);
-      //   } else if (status === 401) {
-      //     this.$router.push("/login");
-      //   } else {
-      //     throw new Error(`toggleTodoCheckmark resulted in ${status}`);
-      //   }
-      // } catch (error) {
-      //   currentMemo.done = !currentMemo.done;
-      //   console.log(error);
-      // }
-    },
-    createNewMemo() {
-      // TODO TODO
-      alert("実装中です。");
-    },
-  },
+const memos = ref([]);
+const showMemos = async () => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/memos`, {
+      cache: "no-cache",
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    memos.value = await response.json();
+    this.$emit("favorite", this.favoriteTotal);
+    this.$emit("todoDone", this.todoDonePercentage);
+    this.$emit("pageName", "メモ");
+  } catch (error) {
+    // TODO 401ならログイン画面遷移、それ以外ならエラー画面遷移
+    console.log(JSON.stringify(error));
+  }
 };
+
+const toggleTodoCheckmark = (i) => {
+  const currentMemo = this.memos[i];
+  currentMemo.done = !currentMemo.done;
+  this.$emit("todoDone", this.todoDonePercentage);
+
+  // const currentMemo = this.memos[i];
+  // currentMemo.done = !currentMemo.done;
+  // try {
+  //   const response = await fetch(
+  //     `${process.env.VUE_APP_API_BASE_URL}/memos/${currentMemo.id}`,
+  //     {
+  //       cache: "no-cache",
+  //       method: "PUT",
+  //       body: JSON.stringify(currentMemo),
+  //       credentials: "include",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
+  //       },
+  //     }
+  //   );
+  //   const status = response.status;
+  //   if (status === 200) {
+  //     this.$emit("todoDone", this.todoDonePercentage);
+  //   } else if (status === 401) {
+  //     this.$router.push("/login");
+  //   } else {
+  //     throw new Error(`toggleTodoCheckmark resulted in ${status}`);
+  //   }
+  // } catch (error) {
+  //   currentMemo.done = !currentMemo.done;
+  //   console.log(error);
+};
+
+const toggleFavorite = (i) => {
+  const currentMemo = memos.value[i];
+  currentMemo.favorite = !currentMemo.favorite;
+  this.$emit("favorite", this.favoriteTotal);
+
+  // const currentMemo = this.memos[i];
+  // currentMemo.favorite = !currentMemo.favorite;
+  // try {
+  //   const response = await fetch(
+  //     `${process.env.VUE_APP_API_BASE_URL}/memos/${currentMemo.id}`,
+  //     {
+  //       cache: "no-cache",
+  //       method: "PUT",
+  //       body: JSON.stringify(currentMemo),
+  //       credentials: "include",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
+  //       },
+  //     }
+  //   );
+  //   const status = response.status;
+  //   if (status === 200) {
+  //     this.$emit("favorite", this.favoriteTotal);
+  //   } else if (status === 401) {
+  //     this.$router.push("/login");
+  //   } else {
+  //     throw new Error(`toggleFavorite resulted in ${status}`);
+  //   }
+  // } catch (error) {
+  //   currentMemo.favorite = !currentMemo.favorite;
+  //   console.log(error);
+};
+
+const createNewMemo = () => {
+  // TODO
+  alert("実装中です。");
+};
+
+const archiveMemo = async (i) => {
+  console.log(i);
+  alert("実装中");
+  // try {
+  //   const currentMemo = this.memos[i];
+  //   const response = await fetch(
+  //     `${process.env.VUE_APP_API_BASE_URL}/archives/${currentMemo.id}`,
+  //     {
+  //       cache: "no-cache",
+  //       method: "PUT",
+  //       credentials: "include",
+  //       headers: {
+  //         "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
+  //       },
+  //     }
+  //   );
+  //   const status = response.status;
+  //   if (status === 201) {
+  //     this.memos.splice(i, 1);
+  //   } else if (status === 401) {
+  //     this.$router.push("/login");
+  //   } else {
+  //     throw new Error(`archivedMemo resulted in ${status}`);
+  //   }
+  // } catch (error) {
+  //   console.log(error);
+  // }
+};
+
+//   computed: {
+//     favoriteTotal() {
+//       const favoriteTotal = this.memos.filter((memo) => {
+//         return memo.favorite === true;
+//       }).length;
+//       return favoriteTotal;
+//     },
+//     todoDonePercentage() {
+//       const todoDoneTotal = this.memos.filter((memo) => {
+//         return memo.done === true;
+//       }).length;
+//       return (todoDoneTotal / this.memos.length) * 100;
+//     },
+//   },
 </script>
 
 <style scoped>
