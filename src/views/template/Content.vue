@@ -18,7 +18,7 @@
         <v-icon class="white--text">mdi-heart</v-icon>
         <span class="white--text">{{ favoriteTotal }} </span>
       </v-btn>
-      <v-btn icon color="white" v-bind="props">
+      <v-btn icon color="white">
         <v-icon class="white--text">mdi-account</v-icon>
       </v-btn>
       <v-btn icon color="white" @click="logout()">
@@ -64,6 +64,7 @@
 
     <!-- メインエリア -->
     <v-main>
+      <!-- TODO ここPiniaにしたいな -->
       <router-view
         v-on:favorite="setFavorite"
         v-on:todoDone="setDonePercentage"
@@ -72,82 +73,67 @@
     </v-main>
   </div>
 </template>
-<script>
+<script setup>
 import { useTheme } from "vuetify";
-export default {
-  setup() {
-    const theme = useTheme();
+import { ref } from "vue";
 
-    return {
-      theme,
-      toggleTheme: () => {
-        theme.global.name.value =
-          theme.global.name.value === "myCustomLightTheme"
-            ? "myCustomDarkTheme"
-            : "myCustomLightTheme";
-      },
-    };
-  },
-  data: () => ({
-    userName: null,
-    pageName: null,
-    navDrawn: false,
-    currentPageTitle: null,
-    favoriteTotal: null,
-    todoDonePercentage: null,
-    menus: [
-      { icon: "mdi-collage", text: "メモ", to: "/memos" },
+// theme section
+const theme = useTheme();
+const toggleTheme = () => {
+  theme.global.name.value =
+    theme.global.name.value === "myCustomLightTheme"
+      ? "myCustomDarkTheme"
+      : "myCustomLightTheme";
+};
+
+// navigation section
+const menus = ref([
+  { icon: "mdi-collage", text: "メモ", to: "/memos" },
+  { icon: "mdi-archive", text: "アーカイブ", to: "/archives" },
+]);
+const navDrawn = ref(false);
+const closeMenu = () => {
+  navDrawn.value = false;
+};
+
+// 画面上部の共通セクション
+const favoriteTotal = ref(null);
+const setFavorite = (total) => {
+  favoriteTotal.value = total;
+};
+
+const pageName = ref(null);
+const setPageName = (pageName) => {
+  pageName.value = pageName;
+};
+
+const todoDonePercentage = ref(null);
+const setDonePercentage = (percentage) => {
+  todoDonePercentage.value = percentage;
+};
+
+const logout = async () => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/auth/logout`,
       {
-        icon: "mdi-archive",
-        text: "アーカイブ",
-        to: "/archives",
-      },
-    ],
-  }),
-  created() {},
-  computed: {
-    userInitial() {
-      return null;
-    },
-  },
-  methods: {
-    closeMenu() {
-      this.navDrawn = false;
-    },
-    setFavorite(total) {
-      this.favoriteTotal = total;
-    },
-    setDonePercentage(percentage) {
-      this.todoDonePercentage = percentage;
-    },
-    setPageName(pageName) {
-      this.pageName = pageName;
-    },
-    async logout() {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/auth/logout`,
-          {
-            method: "POST",
-            cache: "no-cache",
-            mode: "cors",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        const status = response.status;
-        if (status === 200) {
-          this.$router.push("/login");
-        } else {
-          throw new Error(`logout resulted in ${status}`);
-        }
-      } catch (error) {
-        console.log(JSON.stringify(error));
+        method: "POST",
+        cache: "no-cache",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
-    },
-  },
+    );
+    const status = response.status;
+    if (status === 200) {
+      this.$router.push("/login");
+    } else {
+      throw new Error(`logout resulted in ${status}`);
+    }
+  } catch (error) {
+    console.log(JSON.stringify(error));
+  }
 };
 </script>
 <style scoped></style>

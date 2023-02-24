@@ -43,52 +43,50 @@
     >
   </div>
 </template>
-<script>
-export default {
-  data: () => ({
-    loginName: null,
-    password: null,
-    passwordHidden: true,
-    nameRules: [
-      (v) => !!v || "必須です。",
-      (v) => (v || "").length <= 8 || "8文字以下にしてください",
-      (v) => {
-        var reg = new RegExp(/^[a-zA-Z1-9]+$/);
-        return reg.test(v) || "英字または数字のみにしてください。";
-      },
-    ],
-  }),
-  methods: {
-    async login() {
-      if ((await this.$refs.form.validate()).valid) {
-        try {
-          const response = await fetch(
-            `${import.meta.env.VITE_API_BASE_URL}/auth/login`,
-            {
-              cache: "no-cache",
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                user_name: this.loginName,
-                password: this.password,
-              }),
-            }
-          );
+<script setup>
+import { ref } from "vue";
 
-          const status = response.status;
-          if (status === 200) {
-            this.$router.push("/");
-          } else {
-            throw new Error(`login resulted in ${status}`);
-          }
-        } catch (error) {
-          console.log(JSON.stringify(error));
-        }
-      }
-    },
+const loginName = ref(null);
+
+const password = ref(null);
+const passwordHidden = ref(true);
+
+const nameRules = [
+  (v) => !!v || "必須です。",
+  (v) => (v || "").length <= 8 || "8文字以下にしてください",
+  (v) => {
+    var reg = new RegExp(/^[a-zA-Z1-9]+$/);
+    return reg.test(v) || "英字または数字のみにしてください。";
   },
+];
+
+const login = async () => {
+  if ((await this.$refs.form.validate()).valid) {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/login`,
+        {
+          cache: "no-cache",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_name: this.loginName,
+            password: this.password,
+          }),
+        }
+      );
+      const status = response.status;
+      if (status === 200) {
+        this.$router.push("/");
+      } else {
+        throw new Error(`login resulted in ${status}`);
+      }
+    } catch (error) {
+      console.log(JSON.stringify(error));
+    }
+  }
 };
 </script>
 <style scoped>

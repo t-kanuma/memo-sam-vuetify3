@@ -47,98 +47,92 @@
     </v-list>
   </div>
 </template>
-<script>
-// import auth from "@/modules/auth.js";
-export default {
-  data: () => ({
-    deletionDialogShown: false,
-    archivedList: [],
-  }),
-  created() {
-    this.showArchive();
-  },
-  methods: {
-    async showArchive() {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/archives`,
-          {
-            method: "GET",
-            cache: "no-cache",
-            mode: "cors",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        this.archivedList = await response.json();
-        this.$emit("pageName", "アーカイブ");
-      } catch (error) {
-        console.log(JSON.stringify(error));
+<script setup>
+import { ref, onMounted } from "vue";
+
+onMounted(showArchive());
+
+const archivedList = ref([]);
+const showArchive = async () => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/archives`,
+      {
+        method: "GET",
+        cache: "no-cache",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
-    },
-    async unarchiveMemo(i) {
-      console.log(i);
-      alert("実装中");
+    );
+    archivedList.value = await response.json();
+    this.$emit("pageName", "アーカイブ");
+  } catch (error) {
+    console.log(JSON.stringify(error));
+  }
+};
 
-      // try {
-      //   const currentArchive = this.archivedList[i];
-      //   const response = await fetch(
-      //     `${import.meta.env.API_BASE_URL}/memos/${currentArchive.id}`,
-      //     {
-      //       cache: "no-cache",
-      //       method: "POST",
-      //     }
-      //   );
-      //   const status = response.status;
-      //   if (status === 200) {
-      //     this.archivedList.splice(i, 1);
-      //   } else if (status === 401) {
-      //     this.$router.push("/login");
-      //   } else {
-      //     throw new Error(`unarchivedMemo resulted in ${status}`);
-      //   }
-      // } catch (error) {
-      //   console.log(JSON.stringify(error));
-      // }
-    },
-    async deleteMemo(i) {
-      console.log(i);
-      alert("実装中");
+// const unarchivedMemo = async (i) => {
+//   console.log(i);
+//   alert("実装中");
+// try {
+//   const currentArchive = this.archivedList[i];
+//   const response = await fetch(
+//     `${import.meta.env.API_BASE_URL}/memos/${currentArchive.id}`,
+//     {
+//       cache: "no-cache",
+//       method: "POST",
+//     }
+//   );
+//   const status = response.status;
+//   if (status === 200) {
+//     this.archivedList.splice(i, 1);
+//   } else if (status === 401) {
+//     this.$router.push("/login");
+//   } else {
+//     throw new Error(`unarchivedMemo resulted in ${status}`);
+//   }
+// } catch (error) {
+//   console.log(JSON.stringify(error));
+// }
+// }
 
-      // try {
-      //   const currentArchive = this.archivedList[i];
-      //   const response = await fetch(
-      //     `${process.env.VUE_APP_API_BASE_URL}/archives/${currentArchive.id}`,
-      //     {
-      //       cache: "no-cache",
-      //       method: "DELETE",
-      //       mode: "cors",
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //       },
-      //     }
-      //   );
-
-      //   const status = response.status;
-      //   if (status === 200) {
-      //     this.archivedList.splice(i, 1);
-      //   } else if (status === 400) {
-      //     auth.removeAccessToken();
-      //     this.$router.push("/login");
-      //   } else {
-      //     throw new Error(`deleteMemo resulted in ${status}`);
-      //   }
-      // } catch (error) {
-      //   console.log(error);
-      // } finally {
-      //   this.deletionDialogShown = false;
-      // }
-    },
-    cancelDeletion() {
-      this.deletionDialogShown = false;
-    },
-  },
+// deletion section
+const deletionDialogShown = ref(false);
+const cancelDeletion = () => {
+  deletionDialogShown.value = false;
+};
+const deleteMemo = (i) => {
+  console.log(i);
+  alert("実装中");
+  // try {
+  //   const currentArchive = this.archivedList[i];
+  //   const response = await fetch(
+  //     `${process.env.VUE_APP_API_BASE_URL}/archives/${currentArchive.id}`,
+  //     {
+  //       cache: "no-cache",
+  //       method: "DELETE",
+  //       mode: "cors",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     }
+  //   );
+  //   const status = response.status;
+  //   if (status === 200) {
+  //     this.archivedList.splice(i, 1);
+  //   } else if (status === 400) {
+  //     auth.removeAccessToken();
+  //     this.$router.push("/login");
+  //   } else {
+  //     throw new Error(`deleteMemo resulted in ${status}`);
+  //   }
+  // } catch (error) {
+  //   console.log(error);
+  // } finally {
+  //   this.deletionDialogShown = false;
+  // }
 };
 </script>
 <style scoped></style>
