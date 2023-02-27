@@ -1,3 +1,6 @@
+import { useRouter } from "vue-router";
+const router = useRouter();
+
 export const getArchives = async () => {
   const response = await fetch(
     `${import.meta.env.VITE_API_BASE_URL}/archives`,
@@ -14,7 +17,7 @@ export const getArchives = async () => {
   if (response.ok) {
     return await response.json();
   } else if (response.status === 401) {
-    this.$router.push("/login");
+    router.push("/login");
   } else {
     // エラー画面に遷移
     throw new Error(response.statusText);
@@ -34,12 +37,13 @@ export const deleteArchive = async (archiveId) => {
     }
   );
 
-  if (response.status === 401) {
-    this.$router.push("/login");
-  }
-
-  if (!response.ok) {
-    throw new Error(`deleteMemo resulted in ${response.statusText}`);
+  if (response.ok) {
+    return await response.json();
+  } else if (response.status === 401) {
+    router.push("/login");
+  } else {
+    // エラー画面に遷移
+    throw new Error(response.statusText);
   }
 };
 

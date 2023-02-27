@@ -1,3 +1,6 @@
+import { useRouter } from "vue-router";
+const router = useRouter();
+
 export const login = async (loginId, password) => {
   const response = await fetch(
     `${import.meta.env.VITE_API_BASE_URL}/auth/login`,
@@ -14,7 +17,7 @@ export const login = async (loginId, password) => {
     }
   );
   if (response.ok) {
-    this.$router.push("/");
+    router.push("/");
   } else {
     throw new Error(`login resulted in ${response.status}`);
   }
@@ -35,7 +38,7 @@ export const logout = async () => {
   );
 
   if (response.ok) {
-    this.$router.push("/");
+    router.push("/");
   } else {
     throw new Error(`logout resulted in ${response.status}`);
   }

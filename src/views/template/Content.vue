@@ -16,7 +16,7 @@
       </v-btn>
       <v-btn color="white" icon v-show="pageName === 'メモ'">
         <v-icon class="white--text">mdi-heart</v-icon>
-        <span class="white--text">{{ favoriteTotal }} </span>
+        <span class="white--text">{{ favTotal }} </span>
       </v-btn>
       <v-btn icon color="white">
         <v-icon class="white--text">mdi-account</v-icon>
@@ -66,7 +66,6 @@
     <v-main>
       <!-- TODO ここ1部をPiniaにしたいな -->
       <router-view
-        v-on:favorite="setFavorite"
         v-on:todoDone="setDonePercentage"
         v-on:pageName="setPageName"
       />
@@ -76,7 +75,9 @@
 <script setup>
 import { useTheme } from "vuetify";
 import { ref } from "vue";
-import { logout as doLogout } from "../modules/auth.js";
+import { logout as doLogout } from "@/modules/auth.js";
+import { useFavTotalStore } from "@/stores/favoriteTotal";
+import { storeToRefs } from "pinia";
 
 // theme section
 const theme = useTheme();
@@ -98,17 +99,15 @@ const closeMenu = () => {
 };
 
 // 画面上部の共通セクション
-const favoriteTotal = ref(null);
-// emitハンドリング
-const setFavorite = (total) => {
-  favoriteTotal.value = total;
-};
-
 const pageName = ref(null);
 // emitハンドリング
 const setPageName = (pageName) => {
   pageName.value = pageName;
 };
+
+const favTotalStore = useFavTotalStore();
+// ref
+const { favTotal } = storeToRefs(favTotalStore);
 
 const todoDonePercentage = ref(null);
 // emitハンドリング

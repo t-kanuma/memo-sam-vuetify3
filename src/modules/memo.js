@@ -1,3 +1,6 @@
+import { useRouter } from "vue-router";
+const router = useRouter();
+
 export const getMemos = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/memos`, {
     cache: "no-cache",
@@ -11,7 +14,7 @@ export const getMemos = async () => {
   if (response.ok) {
     return await response.json();
   } else if (response.status === 401) {
-    this.$router.push("/login");
+    router.push("/login");
   } else {
     // エラー画面に遷移
     throw new Error(response.statusText);
@@ -31,11 +34,12 @@ export const updateMemo = async (memo) => {
     }
   );
   if (response.ok) {
-    console.log(await response.json());
+    return await response.json();
   } else if (response.status === 401) {
-    this.$router.push("/login");
+    router.push("/login");
   } else {
-    throw new Error();
+    // エラー画面に遷移
+    throw new Error(response.statusText);
   }
 };
 

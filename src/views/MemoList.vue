@@ -48,15 +48,10 @@
 <script setup>
 import { getMemos, updateMemo } from "@/modules/memo";
 import { onMounted, ref, computed } from "vue";
+import { useFavTotalStore } from "@/stores/favTotal";
 
 const memos = ref([]);
-const favoriteTotal = computed(() => {
-  const favoriteTotal = memos.value.filter((memo) => {
-    return memo.favorite === true;
-  }).length;
 
-  return favoriteTotal;
-});
 const todoDonePercentage = computed(() => {
   const todoDoneTotal = memos.value.filter((memo) => {
     return memo.done === true;
@@ -64,12 +59,13 @@ const todoDonePercentage = computed(() => {
   return (todoDoneTotal / memos.value.length) * 100;
 });
 
-const emit = defineEmits(["favorite", "todoDone", "pageName"]);
+const emit = defineEmits(["todoDone", "pageName"]);
 onMounted(showMemos());
 
+const favTotalStore = useFavTotalStore();
 const showMemos = async () => {
   memos.value = await getMemos();
-  emit("favorite", favoriteTotal);
+  favTotalStore.set(memos);
   emit("todoDone", todoDonePercentage);
   emit("pageName", "メモ");
 };
@@ -90,9 +86,9 @@ const toggleFavorite = async (i) => {
   currentMemo.favorite = !currentMemo.favorite;
   try {
     await updateMemo(currentMemo);
-    emit("favorite", todoDonePercentage);
+    favTotalStore.set(memos);
   } catch {
-    currentMemo.done = !currentMemo.done;
+    currentMemo.favorite = !currentMemo.favTotalStore;
   }
 };
 
