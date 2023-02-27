@@ -45,6 +45,7 @@
 </template>
 <script setup>
 import { ref } from "vue";
+import { login as doLogin } from "../modules/auth";
 
 const loginName = ref(null);
 
@@ -62,30 +63,7 @@ const nameRules = [
 
 const login = async () => {
   if ((await this.$refs.form.validate()).valid) {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/auth/login`,
-        {
-          cache: "no-cache",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user_name: this.loginName,
-            password: this.password,
-          }),
-        }
-      );
-      const status = response.status;
-      if (status === 200) {
-        this.$router.push("/");
-      } else {
-        throw new Error(`login resulted in ${status}`);
-      }
-    } catch (error) {
-      console.log(JSON.stringify(error));
-    }
+    await doLogin(loginName, password);
   }
 };
 </script>

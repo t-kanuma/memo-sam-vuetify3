@@ -10,7 +10,7 @@
       <v-spacer></v-spacer>
       <v-btn color="success" icon v-show="pageName === 'メモ'">
         <v-progress-circular
-          :value="this.todoDonePercentage"
+          :value="todoDonePercentage"
           color="white"
         ></v-progress-circular>
       </v-btn>
@@ -64,7 +64,7 @@
 
     <!-- メインエリア -->
     <v-main>
-      <!-- TODO ここPiniaにしたいな -->
+      <!-- TODO ここ1部をPiniaにしたいな -->
       <router-view
         v-on:favorite="setFavorite"
         v-on:todoDone="setDonePercentage"
@@ -76,6 +76,7 @@
 <script setup>
 import { useTheme } from "vuetify";
 import { ref } from "vue";
+import { logout as doLogout } from "../modules/auth.js";
 
 // theme section
 const theme = useTheme();
@@ -98,42 +99,26 @@ const closeMenu = () => {
 
 // 画面上部の共通セクション
 const favoriteTotal = ref(null);
+// emitハンドリング
 const setFavorite = (total) => {
   favoriteTotal.value = total;
 };
 
 const pageName = ref(null);
+// emitハンドリング
 const setPageName = (pageName) => {
   pageName.value = pageName;
 };
 
 const todoDonePercentage = ref(null);
+// emitハンドリング
 const setDonePercentage = (percentage) => {
   todoDonePercentage.value = percentage;
 };
 
+// TODO ユーザーのID渡さないと。
 const logout = async () => {
-  try {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/auth/logout`,
-      {
-        method: "POST",
-        cache: "no-cache",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    const status = response.status;
-    if (status === 200) {
-      this.$router.push("/login");
-    } else {
-      throw new Error(`logout resulted in ${status}`);
-    }
-  } catch (error) {
-    console.log(JSON.stringify(error));
-  }
+  await doLogout();
 };
 </script>
 <style scoped></style>

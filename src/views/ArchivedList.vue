@@ -31,7 +31,11 @@
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn color="accent" variant="flat" @click="deleteMemo(i)">
+                  <v-btn
+                    color="accent"
+                    variant="flat"
+                    @click="removeArchive(i)"
+                  >
                     OK
                   </v-btn>
                   <v-btn color="accent" text @click="cancelDeletion()">
@@ -49,90 +53,35 @@
 </template>
 <script setup>
 import { ref, onMounted } from "vue";
+import { getArchives, deleteArchive } from "@/modules/archive";
+
+const emit = defineEmits(["pageName"]);
+const archives = ref([]);
 
 onMounted(showArchive());
 
-const archivedList = ref([]);
 const showArchive = async () => {
-  try {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/archives`,
-      {
-        method: "GET",
-        cache: "no-cache",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    archivedList.value = await response.json();
-    this.$emit("pageName", "アーカイブ");
-  } catch (error) {
-    console.log(JSON.stringify(error));
-  }
+  archives.value = await getArchives();
+  emit("pageName", "アーカイブ");
 };
 
-// const unarchivedMemo = async (i) => {
-//   console.log(i);
-//   alert("実装中");
-// try {
-//   const currentArchive = this.archivedList[i];
-//   const response = await fetch(
-//     `${import.meta.env.API_BASE_URL}/memos/${currentArchive.id}`,
-//     {
-//       cache: "no-cache",
-//       method: "POST",
-//     }
-//   );
-//   const status = response.status;
-//   if (status === 200) {
-//     this.archivedList.splice(i, 1);
-//   } else if (status === 401) {
-//     this.$router.push("/login");
-//   } else {
-//     throw new Error(`unarchivedMemo resulted in ${status}`);
-//   }
-// } catch (error) {
-//   console.log(JSON.stringify(error));
-// }
-// }
-
-// deletion section
+// delete section
 const deletionDialogShown = ref(false);
+
 const cancelDeletion = () => {
   deletionDialogShown.value = false;
 };
-const deleteMemo = (i) => {
-  console.log(i);
-  alert("実装中");
-  // try {
-  //   const currentArchive = this.archivedList[i];
-  //   const response = await fetch(
-  //     `${process.env.VUE_APP_API_BASE_URL}/archives/${currentArchive.id}`,
-  //     {
-  //       cache: "no-cache",
-  //       method: "DELETE",
-  //       mode: "cors",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //     }
-  //   );
-  //   const status = response.status;
-  //   if (status === 200) {
-  //     this.archivedList.splice(i, 1);
-  //   } else if (status === 400) {
-  //     auth.removeAccessToken();
-  //     this.$router.push("/login");
-  //   } else {
-  //     throw new Error(`deleteMemo resulted in ${status}`);
-  //   }
-  // } catch (error) {
-  //   console.log(error);
-  // } finally {
-  //   this.deletionDialogShown = false;
-  // }
+
+const removeArchive = async (i) => {
+  const archiveToRemove = archives.value[i];
+  await deleteArchive(archiveToRemove.id);
+  archives.value.splice(i, 1);
+  deletionDialogShown.value = false;
 };
+
+// const unarchive = async () => {
+//   todo
+//   await postMemo();
+// };
 </script>
 <style scoped></style>

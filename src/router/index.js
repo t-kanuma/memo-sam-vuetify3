@@ -4,7 +4,7 @@ import Content from "@/views/template/Content.vue";
 import MemoList from "@/views/MemoList.vue";
 import ArchivedList from "@/views/ArchivedList.vue";
 import Login from "@/views/Login.vue";
-import auth from "@/modules/auth.js";
+import { isLoggedIn } from "@/modules/auth.js";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -40,13 +40,9 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const NODE_ENV = process.env.NODE_ENV;
-  if (
-    NODE_ENV === "local" &&
-    to.matched.some((record) => record.meta.requiresAuth)
-  ) {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
     (async () => {
-      const result = await auth.isloggedIn();
+      const result = await isLoggedIn();
       if (!result) {
         next({
           path: "/login",

@@ -36,7 +36,7 @@
       <v-btn
         color="accent"
         icon
-        @click="createNewMemo()"
+        @click="openNewMemoDialog()"
         class="mr-5 mb-5"
         size="large"
       >
@@ -46,146 +46,67 @@
   </div>
 </template>
 <script setup>
-import { onMounted, ref } from "vue";
-onMounted(showMemos());
+import { getMemos, updateMemo } from "@/modules/memo";
+import { onMounted, ref, computed } from "vue";
 
 const memos = ref([]);
+const favoriteTotal = computed(() => {
+  const favoriteTotal = memos.value.filter((memo) => {
+    return memo.favorite === true;
+  }).length;
+
+  return favoriteTotal;
+});
+const todoDonePercentage = computed(() => {
+  const todoDoneTotal = memos.value.filter((memo) => {
+    return memo.done === true;
+  }).length;
+  return (todoDoneTotal / memos.value.length) * 100;
+});
+
+const emit = defineEmits(["favorite", "todoDone", "pageName"]);
+onMounted(showMemos());
+
 const showMemos = async () => {
+  memos.value = await getMemos();
+  emit("favorite", favoriteTotal);
+  emit("todoDone", todoDonePercentage);
+  emit("pageName", "メモ");
+};
+
+const toggleTodoCheckmark = async (i) => {
+  const currentMemo = memos.value[i];
+  currentMemo.done = !currentMemo.done;
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/memos`, {
-      cache: "no-cache",
-      method: "GET",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    memos.value = await response.json();
-    this.$emit("favorite", this.favoriteTotal);
-    this.$emit("todoDone", this.todoDonePercentage);
-    this.$emit("pageName", "メモ");
-  } catch (error) {
-    // TODO 401ならログイン画面遷移、それ以外ならエラー画面遷移
-    console.log(JSON.stringify(error));
+    await updateMemo(currentMemo);
+    emit("todoDone", todoDonePercentage);
+  } catch {
+    currentMemo.done = !currentMemo.done;
   }
 };
 
-const toggleTodoCheckmark = (i) => {
-  const currentMemo = this.memos[i];
-  currentMemo.done = !currentMemo.done;
-  this.$emit("todoDone", this.todoDonePercentage);
-
-  // const currentMemo = this.memos[i];
-  // currentMemo.done = !currentMemo.done;
-  // try {
-  //   const response = await fetch(
-  //     `${process.env.VUE_APP_API_BASE_URL}/memos/${currentMemo.id}`,
-  //     {
-  //       cache: "no-cache",
-  //       method: "PUT",
-  //       body: JSON.stringify(currentMemo),
-  //       credentials: "include",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
-  //       },
-  //     }
-  //   );
-  //   const status = response.status;
-  //   if (status === 200) {
-  //     this.$emit("todoDone", this.todoDonePercentage);
-  //   } else if (status === 401) {
-  //     this.$router.push("/login");
-  //   } else {
-  //     throw new Error(`toggleTodoCheckmark resulted in ${status}`);
-  //   }
-  // } catch (error) {
-  //   currentMemo.done = !currentMemo.done;
-  //   console.log(error);
-};
-
-const toggleFavorite = (i) => {
+const toggleFavorite = async (i) => {
   const currentMemo = memos.value[i];
   currentMemo.favorite = !currentMemo.favorite;
-  this.$emit("favorite", this.favoriteTotal);
-
-  // const currentMemo = this.memos[i];
-  // currentMemo.favorite = !currentMemo.favorite;
-  // try {
-  //   const response = await fetch(
-  //     `${process.env.VUE_APP_API_BASE_URL}/memos/${currentMemo.id}`,
-  //     {
-  //       cache: "no-cache",
-  //       method: "PUT",
-  //       body: JSON.stringify(currentMemo),
-  //       credentials: "include",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
-  //       },
-  //     }
-  //   );
-  //   const status = response.status;
-  //   if (status === 200) {
-  //     this.$emit("favorite", this.favoriteTotal);
-  //   } else if (status === 401) {
-  //     this.$router.push("/login");
-  //   } else {
-  //     throw new Error(`toggleFavorite resulted in ${status}`);
-  //   }
-  // } catch (error) {
-  //   currentMemo.favorite = !currentMemo.favorite;
-  //   console.log(error);
-};
-
-const createNewMemo = () => {
-  // TODO
-  alert("実装中です。");
+  try {
+    await updateMemo(currentMemo);
+    emit("favorite", todoDonePercentage);
+  } catch {
+    currentMemo.done = !currentMemo.done;
+  }
 };
 
 const archiveMemo = async (i) => {
   console.log(i);
-  alert("実装中");
-  // try {
-  //   const currentMemo = this.memos[i];
-  //   const response = await fetch(
-  //     `${process.env.VUE_APP_API_BASE_URL}/archives/${currentMemo.id}`,
-  //     {
-  //       cache: "no-cache",
-  //       method: "PUT",
-  //       credentials: "include",
-  //       headers: {
-  //         "X-CSRF-TOKEN": this.$cookies.get("csrf_access_token"),
-  //       },
-  //     }
-  //   );
-  //   const status = response.status;
-  //   if (status === 201) {
-  //     this.memos.splice(i, 1);
-  //   } else if (status === 401) {
-  //     this.$router.push("/login");
-  //   } else {
-  //     throw new Error(`archivedMemo resulted in ${status}`);
-  //   }
-  // } catch (error) {
-  //   console.log(error);
-  // }
+  alert("実装中です。");
+  // const memoToArchive = memos.value[i];
+  // await postArchive(memoToArchive);
+  // memos.value.splice(i, 1);
 };
 
-//   computed: {
-//     favoriteTotal() {
-//       const favoriteTotal = this.memos.filter((memo) => {
-//         return memo.favorite === true;
-//       }).length;
-//       return favoriteTotal;
-//     },
-//     todoDonePercentage() {
-//       const todoDoneTotal = this.memos.filter((memo) => {
-//         return memo.done === true;
-//       }).length;
-//       return (todoDoneTotal / this.memos.length) * 100;
-//     },
-//   },
+const openNewMemoDialog = async () => {
+  alert("実装中です。");
+};
 </script>
 
 <style scoped>
