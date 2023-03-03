@@ -3,7 +3,7 @@ const router = useRouter();
 
 export const getMemos = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/memos`, {
-    cache: "no-cache",
+    cache: "no-store",
     method: "GET",
     mode: "cors",
     headers: {
@@ -25,7 +25,6 @@ export const updateMemo = async (memo) => {
   const response = await fetch(
     `${import.meta.env.VITE_API_BASE_URL}/memos/${memo.id}`,
     {
-      cache: "no-cache",
       method: "PUT",
       body: JSON.stringify(memo),
       headers: {

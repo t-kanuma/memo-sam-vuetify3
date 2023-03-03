@@ -6,7 +6,7 @@ export const getArchives = async () => {
     `${import.meta.env.VITE_API_BASE_URL}/archives`,
     {
       method: "GET",
-      cache: "no-cache",
+      cache: "no-store",
       mode: "cors",
       headers: {
         "Content-Type": "application/json",
@@ -28,7 +28,6 @@ export const deleteArchive = async (archiveId) => {
   const response = await fetch(
     `${process.env.VUE_APP_API_BASE_URL}/archives/${archiveId}`,
     {
-      cache: "no-cache",
       method: "DELETE",
       mode: "cors",
       headers: {

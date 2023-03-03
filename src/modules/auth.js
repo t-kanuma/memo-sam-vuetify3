@@ -5,7 +5,6 @@ export const login = async (loginId, password) => {
   const response = await fetch(
     `${import.meta.env.VITE_API_BASE_URL}/auth/login`,
     {
-      cache: "no-cache",
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -29,7 +28,6 @@ export const logout = async () => {
     `${import.meta.env.VITE_API_BASE_URL}/auth/logout`,
     {
       method: "POST",
-      cache: "no-cache",
       mode: "cors",
       headers: {
         "Content-Type": "application/json",
@@ -49,7 +47,7 @@ export const isLoggedIn = async () => {
     const response = await fetch(
       `${import.meta.env.VITE_API_BASE_URL}/auth/status`,
       {
-        cache: "no-cache",
+        cache: "no-store",
         method: "GET",
         mode: "cors",
         headers: {
