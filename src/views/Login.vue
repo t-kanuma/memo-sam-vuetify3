@@ -45,12 +45,16 @@
 </template>
 <script setup>
 import { ref } from "vue";
-import { login as doLogin } from "../modules/auth";
+// import { login as doLogin } from "../modules/auth";
+import { useRouter } from "vue-router";
+const router = useRouter();
 
 const loginName = ref(null);
 
 const password = ref(null);
 const passwordHidden = ref(true);
+
+const form = ref(null);
 
 const nameRules = [
   (v) => !!v || "必須です。",
@@ -62,8 +66,9 @@ const nameRules = [
 ];
 
 const login = async () => {
-  if ((await this.$refs.form.validate()).valid) {
-    await doLogin(loginName, password);
+  if ((await form.value.validate()).valid) {
+    router.push("/");
+    // await doLogin(loginName, password);
   }
 };
 </script>

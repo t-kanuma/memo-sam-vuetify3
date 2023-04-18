@@ -1,5 +1,4 @@
 import { useRouter } from "vue-router";
-const router = useRouter();
 
 export const login = async (loginId, password) => {
   const response = await fetch(
@@ -16,6 +15,7 @@ export const login = async (loginId, password) => {
     }
   );
   if (response.ok) {
+    const router = useRouter();
     router.push("/");
   } else {
     throw new Error(`login resulted in ${response.status}`);
@@ -36,6 +36,7 @@ export const logout = async () => {
   );
 
   if (response.ok) {
+    const router = useRouter();
     router.push("/");
   } else {
     throw new Error(`logout resulted in ${response.status}`);

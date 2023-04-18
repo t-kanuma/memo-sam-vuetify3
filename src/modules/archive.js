@@ -1,5 +1,4 @@
 import { useRouter } from "vue-router";
-const router = useRouter();
 
 export const getArchives = async () => {
   const response = await fetch(
@@ -15,8 +14,10 @@ export const getArchives = async () => {
   );
 
   if (response.ok) {
-    return await response.json();
+    return (await response.json()).memos;
   } else if (response.status === 401) {
+    // TODO ここのコード本当にいるかな？
+    const router = useRouter();
     router.push("/login");
   } else {
     // エラー画面に遷移
@@ -25,8 +26,9 @@ export const getArchives = async () => {
 };
 
 export const deleteArchive = async (archiveId) => {
+  console.log(archiveId);
   const response = await fetch(
-    `${process.env.VUE_APP_API_BASE_URL}/archives/${archiveId}`,
+    `${import.meta.env.VITE_API_BASE_URL}/archives/${archiveId}`,
     {
       method: "DELETE",
       mode: "cors",
@@ -36,16 +38,14 @@ export const deleteArchive = async (archiveId) => {
     }
   );
 
-  if (response.ok) {
-    return await response.json();
-  } else if (response.status === 401) {
-    router.push("/login");
-  } else {
-    // エラー画面に遷移
-    throw new Error(response.statusText);
+  if (!response.ok) {
+    if (response.status === 401) {
+      // TODO ここのコード本当にいるかな？
+      const router = useRouter();
+      router.push("/login");
+    } else {
+      // エラー画面に遷移
+      throw new Error(response.statusText);
+    }
   }
-};
-
-export const postArchive = async () => {
-  // todo
 };

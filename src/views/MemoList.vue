@@ -1,16 +1,19 @@
 <template>
-  <div>
+  <template v-if="renderReady">
     <!-- コンテナで適切にパディングする。fluidで横幅伸びる。 -->
     <v-container fluid>
       <!-- dense:行間が狭くなる。 -->
       <v-row dense>
         <!-- レスポンシブ:  デフォルトは1列(12/12)して、viewportがsm以上であれば3列(12/4)にする。-->
         <v-col v-for="(memo, i) in memos" :key="i" cols="12" sm="4">
-          <v-card
-            :title="memo.title"
-            :class="{ 'text-decoration-line-through': memo.done }"
-            :text="memo.text"
-          >
+          <v-card>
+            <v-card-title
+              :class="{ 'text-decoration-line-through': memo.done }"
+              >{{ memo.title }}</v-card-title
+            >
+            <v-card-text :class="{ 'text-decoration-line-through': memo.done }">
+              {{ memo.text }}
+            </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn icon color="secondary" @click="toggleTodoCheckmark(i)">
@@ -30,6 +33,17 @@
           </v-card>
         </v-col>
       </v-row>
+      <v-snackbar
+        :timeout="2000"
+        v-model="noticeAfterArchive"
+        centered
+        variant="tonal"
+        location="center"
+        close-on-content-click
+        color="primary"
+      >
+        アーカイブしました。
+      </v-snackbar>
     </v-container>
 
     <div class="float-button-wrapper">
@@ -43,13 +57,28 @@
         <v-icon>mdi-plus</v-icon>
       </v-btn>
     </div>
-  </div>
+  </template>
+  <template v-else>
+    <!-- <div class="prog-circ-on-init">
+      <v-progress-circular
+        size="200"
+        width="5"
+        color="secondary"
+        indeterminate
+      ></v-progress-circular>
+    </div> -->
+    <v-progress-linear
+      indeterminate
+      color="accent-lighten-2"
+    ></v-progress-linear>
+  </template>
 </template>
 <script setup>
 import { getMemos, updateMemo } from "@/modules/memo";
 import { onMounted, ref, computed } from "vue";
-import { useFavTotalStore } from "@/stores/favTotal";
+import { useFavTotalStore } from "@/stores/favoriteTotal";
 
+const renderReady = ref(false);
 const memos = ref([]);
 
 const todoDonePercentage = computed(() => {
@@ -60,49 +89,49 @@ const todoDonePercentage = computed(() => {
 });
 
 const emit = defineEmits(["todoDone", "pageName"]);
-onMounted(showMemos());
 
+// memo:storeの取得
 const favTotalStore = useFavTotalStore();
 const showMemos = async () => {
   memos.value = await getMemos();
   favTotalStore.set(memos);
-  emit("todoDone", todoDonePercentage);
-  emit("pageName", "メモ");
+  emit("todoDone", [todoDonePercentage.value]);
+  emit("pageName", ["メモ"]);
 };
 
 const toggleTodoCheckmark = async (i) => {
   const currentMemo = memos.value[i];
   currentMemo.done = !currentMemo.done;
-  try {
-    await updateMemo(currentMemo);
-    emit("todoDone", todoDonePercentage);
-  } catch {
-    currentMemo.done = !currentMemo.done;
-  }
+  await updateMemo(currentMemo);
+  emit("todoDone", [todoDonePercentage.value]);
 };
 
 const toggleFavorite = async (i) => {
   const currentMemo = memos.value[i];
   currentMemo.favorite = !currentMemo.favorite;
-  try {
-    await updateMemo(currentMemo);
-    favTotalStore.set(memos);
-  } catch {
-    currentMemo.favorite = !currentMemo.favTotalStore;
-  }
+
+  await updateMemo(currentMemo);
+  // pinia使っているのでemitで更新する必要はない。
+  favTotalStore.set(memos);
 };
 
+const noticeAfterArchive = ref(false);
 const archiveMemo = async (i) => {
-  console.log(i);
-  alert("実装中です。");
-  // const memoToArchive = memos.value[i];
-  // await postArchive(memoToArchive);
-  // memos.value.splice(i, 1);
+  const memoToArchive = memos.value[i];
+  memoToArchive.archived = true;
+  await updateMemo(memoToArchive);
+  await showMemos();
+  noticeAfterArchive.value = true;
 };
 
 const openNewMemoDialog = async () => {
   alert("実装中です。");
 };
+
+onMounted(async () => {
+  await showMemos();
+  renderReady.value = true;
+});
 </script>
 
 <style scoped>
@@ -115,5 +144,13 @@ const openNewMemoDialog = async () => {
   display: flex;
   justify-content: flex-end;
   align-items: flex-end;
+}
+
+.prog-circ-on-init {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

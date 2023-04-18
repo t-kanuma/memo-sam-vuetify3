@@ -10,7 +10,7 @@
       <v-spacer></v-spacer>
       <v-btn color="success" icon v-show="pageName === 'メモ'">
         <v-progress-circular
-          :value="todoDonePercentage"
+          :model-value="todoDonePercentage"
           color="white"
         ></v-progress-circular>
       </v-btn>
@@ -39,7 +39,7 @@
       <v-list nav dense>
         <v-list-item
           v-for="(menu, i) in menus"
-          :key="i"
+          :key="`menu-${i}`"
           link
           @click="closeMenu()"
           :to="menu.to"
@@ -64,11 +64,7 @@
 
     <!-- メインエリア -->
     <v-main>
-      <!-- TODO ここ1部をPiniaにしたいな -->
-      <router-view
-        v-on:todoDone="setDonePercentage"
-        v-on:pageName="setPageName"
-      />
+      <router-view @todoDone="setDonePercentage" @pageName="setPageName" />
     </v-main>
   </div>
 </template>
@@ -101,18 +97,19 @@ const closeMenu = () => {
 // 画面上部の共通セクション
 const pageName = ref(null);
 // emitハンドリング
-const setPageName = (pageName) => {
-  pageName.value = pageName;
+const setPageName = (pageNameEvent) => {
+  pageName.value = pageNameEvent[0];
 };
 
+// memo:storeの取得
 const favTotalStore = useFavTotalStore();
-// ref
+// memo:storeから値を取得してrefに格納
 const { favTotal } = storeToRefs(favTotalStore);
 
-const todoDonePercentage = ref(null);
+const todoDonePercentage = ref(0);
 // emitハンドリング
-const setDonePercentage = (percentage) => {
-  todoDonePercentage.value = percentage;
+const setDonePercentage = (percentageEvent) => {
+  todoDonePercentage.value = percentageEvent[0];
 };
 
 // TODO ユーザーのID渡さないと。

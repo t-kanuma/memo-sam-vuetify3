@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <template v-if="renderReady">
     <v-list>
-      <v-list-item v-for="(memo, i) in archivedList" :key="`list-${i}`">
+      <v-list-item v-for="(memo, i) in archives" :key="`list-${i}`">
         <v-list-item-title class="font-weight-bold">
           {{ memo.title }}
         </v-list-item-title>
@@ -49,20 +49,46 @@
         <v-divider></v-divider>
       </v-list-item>
     </v-list>
-  </div>
+    <v-snackbar
+      :timeout="2000"
+      v-model="noticeAfterUnarchive"
+      centered
+      variant="tonal"
+      location="center"
+      close-on-content-click
+      color="primary"
+    >
+      メモに戻しました。
+    </v-snackbar>
+  </template>
+  <template v-else>
+    <v-progress-linear
+      indeterminate
+      color="accent-lighten-2"
+    ></v-progress-linear>
+  </template>
 </template>
 <script setup>
 import { ref, onMounted } from "vue";
 import { getArchives, deleteArchive } from "@/modules/archive";
+import { updateMemo } from "@/modules/memo";
 
-const emit = defineEmits(["pageName"]);
+const emit = defineEmits(["todoDone", "pageName"]);
+const renderReady = ref(false);
+const noticeAfterUnarchive = ref(false);
 const archives = ref([]);
-
-onMounted(showArchive());
 
 const showArchive = async () => {
   archives.value = await getArchives();
-  emit("pageName", "アーカイブ");
+  emit("pageName", ["アーカイブ"]);
+};
+
+const unarchiveMemo = async (i) => {
+  const archiveToUnarchive = archives.value[i];
+  archiveToUnarchive.archived = false;
+  await updateMemo(archiveToUnarchive);
+  await showArchive();
+  noticeAfterUnarchive.value = true;
 };
 
 // delete section
@@ -74,14 +100,15 @@ const cancelDeletion = () => {
 
 const removeArchive = async (i) => {
   const archiveToRemove = archives.value[i];
+  console.log(archiveToRemove);
   await deleteArchive(archiveToRemove.id);
-  archives.value.splice(i, 1);
   deletionDialogShown.value = false;
+  await showArchive();
 };
 
-// const unarchive = async () => {
-//   todo
-//   await postMemo();
-// };
+onMounted(async () => {
+  await showArchive();
+  renderReady.value = true;
+});
 </script>
 <style scoped></style>
