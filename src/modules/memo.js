@@ -43,6 +43,21 @@ export const updateMemo = async (memo) => {
   }
 };
 
-export const postMemo = async () => {
-  // todo
+export const postMemo = async (newMemo) => {
+  const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/memos`, {
+    method: "POST",
+    body: JSON.stringify(newMemo),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (response.ok) {
+    return await response.json();
+  } else if (response.status === 401) {
+    const router = useRouter();
+    router.push("/login");
+  } else {
+    // エラー画面に遷移
+    throw new Error(response.statusText);
+  }
 };

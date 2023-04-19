@@ -19,7 +19,7 @@
             prepend-icon="mdi-account-circle"
             color="accent"
             :counter="8"
-            :rules="nameRules"
+            :rules="loginRules"
             class="mb-3"
           ></v-text-field>
           <v-text-field
@@ -56,7 +56,7 @@ const passwordHidden = ref(true);
 
 const form = ref(null);
 
-const nameRules = [
+const loginRules = [
   (v) => !!v || "必須です。",
   (v) => (v || "").length <= 8 || "8文字以下にしてください",
   (v) => {
