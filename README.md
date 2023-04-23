@@ -1,5 +1,25 @@
 # memo-sam-vuetify3
 
+## 認証認可のポイント
+* [amazon-cognito-identity-js](https://www.npmjs.com/package/amazon-cognito-identity-js)を使っている。
+
+### アプリ機能
+* サインイン
+  * エクスペリエンス
+    * ユーザ名/パスワードで認証する。
+    * パスワードは最低8桁
+* サインアウト
+
+### 非アプリ機能
+以下は、Cognitoから直接設定する。  
+時間があればアプリに実装する。  
+注意点として、以下はUIからできないが、直接User Pool APIを叩くことで可能。
+* サインアップ
+* パスワード再設定（アカウント復旧）
+* アカウント削除
+
+------------------
+
 This template should help get you started developing with Vue 3 in Vite.
 
 ## Recommended IDE Setup
