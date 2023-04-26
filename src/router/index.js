@@ -5,7 +5,7 @@ import MemoList from "@/views/MemoList.vue";
 import ArchivedList from "@/views/ArchivedList.vue";
 import Login from "@/views/Login.vue";
 import ErrorDestination from "@/views/ErrorDestination.vue";
-// import { isLoggedIn } from "@/modules/auth.js";
+import { isLoggedIn } from "@/modules/auth.js";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -13,7 +13,7 @@ const router = createRouter({
     {
       path: "/",
       component: Content,
-      meta: { requiresAuth: false },
+      meta: { requiresAuth: true },
       redirect: () => {
         return { name: "MemoList" };
       },
@@ -22,17 +22,25 @@ const router = createRouter({
           path: "/memos",
           name: "MemoList",
           component: MemoList,
-          meta: { requiresAuth: false },
         },
         {
           path: "/archives",
           name: "ArchivedList",
           component: ArchivedList,
-          meta: { requiresAuth: false },
         },
       ],
     },
     {
+      beforeEnter: async (to, from, next) => {
+        // ログイン済みの場合はメモ一覧画面に遷移する
+        if (await isLoggedIn()) {
+          next({
+            path: "/memos",
+          });
+        } else {
+          next();
+        }
+      },
       path: "/login",
       name: "Login",
       component: Login,
@@ -45,31 +53,18 @@ const router = createRouter({
   ],
 });
 
-// ここの要否について
-// エラーを発生させるタイミングの問題
-// 1. APIアクセスが発生した時にエラーにするか
-// 2. 画面アクセスした際にエラーにするか
-// 前者は発生するタイミングが遅く、ユーザーに無駄作業が起こる可能性がある。
-// 後者は、ユーザーがログインしているかどうかを毎回API Callする必要がある。トータルのレスポンスタイムが増える。
-// 頻度で判断すれば良いが、今の画面では表示時にAPI Callしているので、前者の方が良いと思う。
-// router.beforeEach((to, from, next) => {
-//   if (to.matched.some((record) => record.meta.requiresAuth)) {
-//     (async () => {
-//       const result = await isLoggedIn();
-//       if (!result) {
-//         next({
-//           path: "/login",
-//           query: { redirect: to.fullPath },
-//         });
-//       } else {
-//         next();
-//       }
-//     })().catch((error) => {
-//       console.log(JSON.stringify(error));
-//     });
-//   } else {
-//     next();
-//   }
-// });
+router.beforeEach(async (to, from, next) => {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (await isLoggedIn()) {
+      next();
+    } else {
+      next({
+        path: "/login",
+      });
+    }
+  } else {
+    next();
+  }
+});
 
 export default router;

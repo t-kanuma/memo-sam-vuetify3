@@ -81,7 +81,6 @@ const login = async () => {
   if ((await form.value.validate()).valid) {
     try {
       const session = await authenticate(loginName.value, password.value);
-      console.debug(session);
 
       if ("idToken" in session) {
         router.push("/");

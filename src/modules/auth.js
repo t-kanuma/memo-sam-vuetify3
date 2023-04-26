@@ -2,7 +2,24 @@ import {
   CognitoUserPool,
   AuthenticationDetails,
   CognitoUser,
+  // CookieStorage,
 } from "amazon-cognito-identity-js";
+
+/**
+ * Runtime Error
+ */
+class NoUserSessionError extends Error {
+  constructor(message = "No user session") {
+    super(message);
+  }
+}
+
+// const cookieSetting = {
+//   domain: "localhost",
+//   expires: 30,
+//   secure: true,
+//   sameSite: "strict",
+// };
 
 /**
  *
@@ -10,57 +27,8 @@ import {
 const userPool = new CognitoUserPool({
   UserPoolId: `${import.meta.env.VITE_COGNITO_USER_POOL_ID}`,
   ClientId: `${import.meta.env.VITE_COGNITO_CLIENT_ID}`,
+  // Storage: new CookieStorage(cookieSetting),
 });
-
-/**
- *
- */
-export class NoUserSessionError extends Error {
-  constructor(message = "No user session") {
-    super(message);
-  }
-}
-
-/**
- *
- * @returns
- */
-export const getUserSession = () => {
-  const cognitoUser = userPool.getCurrentUser();
-  if (!cognitoUser) {
-    return null;
-  }
-
-  return new Promise((resolve, reject) => {
-    cognitoUser.getSession((err, session) => {
-      if (err) {
-        reject(err);
-      }
-
-      resolve(session);
-    });
-  });
-};
-
-/**
- *
- * @returns
- */
-export const getIdToken = async () => {
-  try {
-    const userSession = await getUserSession();
-    if (!userSession) {
-      // 想定ケース
-      //   - 未ログインでURL直打ちの場合
-      throw new NoUserSessionError();
-    } else {
-      return userSession.getIdToken().getJwtToken();
-    }
-  } catch {
-    // 想定ケース: リフレッシュトークンが期限切れの場合
-    throw new NoUserSessionError();
-  }
-};
 
 let cognitoUser = null;
 /**
@@ -74,7 +42,11 @@ export const authenticate = async (userName, password) => {
     throw new Error("loginId or password is empty");
   }
 
-  const user = { Username: userName, Pool: userPool };
+  const user = {
+    Username: userName,
+    Pool: userPool,
+    // Storage: new CookieStorage(cookieSetting),
+  };
   cognitoUser = new CognitoUser(user);
 
   const authenticationData = { Username: userName, Password: password };
@@ -115,25 +87,82 @@ export const completeNewPasswordChallenge = async (userName, newPassword) => {
  *
  * @returns
  */
-export const logout = async () => {
+export const getUserSession = () => {
   const cognitoUser = userPool.getCurrentUser();
-  return new Promise((resolve) => {
-    cognitoUser.signOut(resolve());
+  if (!cognitoUser) {
+    // 未ログイン状態
+    return null;
+  }
+
+  return new Promise((resolve, reject) => {
+    // idTokenが期限切れの場合、refreshTokenを使って自動的に更新してくれる。
+    cognitoUser.getSession((err, session) => {
+      if (err) {
+        // refreshTokenが期限切れの場合
+        reject(err);
+      }
+
+      resolve(session);
+    });
   });
+};
+
+/**
+ *
+ */
+export const isLoggedIn = async () => {
+  try {
+    const userSession = await getUserSession();
+    if (!userSession) {
+      // 未ログイン状態
+      return false;
+    }
+
+    // ログイン状態
+    return userSession.isValid();
+  } catch {
+    // リフレッシュトークンが期限切れの場合
+    return false;
+  }
+};
+
+/**
+ * UserSessionがある状態を前提としている。
+ * @returns
+ */
+export const getIdToken = async () => {
+  try {
+    const userSession = await getUserSession();
+    if (!userSession) {
+      throw new NoUserSessionError();
+    } else {
+      return userSession.getIdToken().getJwtToken();
+    }
+  } catch {
+    throw new NoUserSessionError();
+  }
+};
+
+/**
+ *
+ * UserSessionがある状態を前提としている。
+ */
+export const getUsername = async () => {
+  const cognitoUser = userPool.getCurrentUser();
+  if (!cognitoUser) {
+    throw new NoUserSessionError();
+  }
+
+  return cognitoUser.getUsername();
 };
 
 /**
  *
  * @returns
  */
-export const isloginSessionValid = () => {
+export const logout = async () => {
   const cognitoUser = userPool.getCurrentUser();
-  if (!cognitoUser) {
-    return false;
-  }
-
-  cognitoUser.getSession().then((session) => {
-    console.log(session);
-    return session.isValid();
+  return new Promise((resolve) => {
+    cognitoUser.signOut(resolve());
   });
 };

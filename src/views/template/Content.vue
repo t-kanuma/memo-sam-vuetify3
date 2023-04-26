@@ -18,9 +18,15 @@
         <v-icon class="white--text">mdi-heart</v-icon>
         <span class="white--text">{{ favTotal }} </span>
       </v-btn>
-      <v-btn icon color="white">
-        <v-icon class="white--text">mdi-account</v-icon>
-      </v-btn>
+
+      <v-tooltip location="bottom" :text="userName">
+        <template v-slot:activator="{ props }">
+          <v-btn v-bind="props" icon color="white">
+            <v-icon class="white--text">mdi-account</v-icon>
+          </v-btn>
+        </template>
+      </v-tooltip>
+
       <v-btn icon color="white" @click="logout()">
         <v-icon class="white--text">mdi-logout</v-icon>
       </v-btn>
@@ -70,11 +76,12 @@
 </template>
 <script setup>
 import { useTheme } from "vuetify";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { logout as doLogout } from "@/modules/auth.js";
 import { useFavTotalStore } from "@/stores/favoriteTotal";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
+import { getUsername } from "@/modules/auth";
 const router = useRouter();
 
 // theme section
@@ -118,5 +125,10 @@ const logout = async () => {
   await doLogout();
   router.push("/login");
 };
+
+const userName = ref(null);
+onMounted(async () => {
+  userName.value = await getUsername();
+});
 </script>
 <style scoped></style>
