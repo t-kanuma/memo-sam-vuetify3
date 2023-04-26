@@ -19,7 +19,7 @@
             prepend-icon="mdi-account-circle"
             color="accent"
             :counter="8"
-            :rules="loginRules"
+            :rules="userNameRules"
             class="mb-3"
           ></v-text-field>
           <v-text-field
@@ -33,8 +33,11 @@
             @click:append="passwordHidden = !passwordHidden"
             color="accent"
             :counter="8"
-            :rules="nameRules"
-          ></v-text-field> </v-card-text
+            :rules="passwordRules"
+          ></v-text-field>
+          <div class="mt-2 text-error d-flex justify-center align-center">
+            {{ loginFailedMessage ?? "" }}
+          </div> </v-card-text
         ><v-card-actions
           ><v-spacer></v-spacer
           ><v-btn variant="flat" color="accent" @click="login">ログイン</v-btn>
@@ -45,7 +48,7 @@
 </template>
 <script setup>
 import { ref } from "vue";
-// import { login as doLogin } from "../modules/auth";
+import { authenticate, completeNewPasswordChallenge } from "../modules/auth";
 import { useRouter } from "vue-router";
 const router = useRouter();
 
@@ -55,20 +58,48 @@ const password = ref(null);
 const passwordHidden = ref(true);
 
 const form = ref(null);
+const loginFailedMessage = ref(null);
 
-const loginRules = [
+const userNameRules = [
   (v) => !!v || "必須です。",
-  (v) => (v || "").length <= 8 || "8文字以下にしてください",
   (v) => {
-    var reg = new RegExp(/^[a-zA-Z1-9]+$/);
+    const reg = new RegExp(/^[a-zA-Z1-9]+$/);
     return reg.test(v) || "英字または数字のみにしてください。";
   },
 ];
 
+const passwordRules = [
+  (v) => !!v || "必須です。",
+  (v) => (v || "").length >= 8 || "7文字以上にしてください",
+  // (v) => {
+  //   const reg = new RegExp(/^[a-zA-Z1-9]+$/);
+  //   return reg.test(v) || "英字または数字のみにしてください。";
+  // },
+];
+
 const login = async () => {
   if ((await form.value.validate()).valid) {
-    router.push("/");
-    // await doLogin(loginName, password);
+    try {
+      const session = await authenticate(loginName.value, password.value);
+      console.debug(session);
+
+      if ("idToken" in session) {
+        router.push("/");
+      } else {
+        // とりあえず初回パスワードをそのまま使ってしまう。
+        // TODO 本来はサインアップ画面を用意して、ユーザーにパスワード設定してもらうので
+        // NewPasswordChallenge自体が不要になる。
+        const passwordChallengeResult = await completeNewPasswordChallenge(
+          loginName.value,
+          password.value
+        );
+        console.debug(passwordChallengeResult);
+        router.push("/");
+      }
+    } catch (e) {
+      console.debug(e);
+      loginFailedMessage.value = "ログインまたはパスワードに誤りがあります。";
+    }
   }
 };
 </script>

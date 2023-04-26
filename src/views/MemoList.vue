@@ -67,6 +67,10 @@ import { getMemos, updateMemo } from "@/modules/memo";
 import { onMounted, ref, computed } from "vue";
 import { useFavTotalStore } from "@/stores/favoriteTotal";
 import NewMemoDialog from "@/components/NewMemoDialog.vue";
+import { NoUserSessionError } from "@/modules/auth";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const renderReady = ref(false);
 const memos = ref([]);
@@ -75,10 +79,18 @@ const emit = defineEmits(["todoDone", "pageName"]);
 const favTotalStore = useFavTotalStore();
 
 const showMemos = async () => {
-  memos.value = await getMemos();
-  favTotalStore.set(memos);
-  emit("todoDone", [todoDonePercentage.value]);
-  emit("pageName", ["メモ"]);
+  try {
+    memos.value = (await getMemos()).memos;
+    favTotalStore.set(memos);
+    emit("todoDone", [todoDonePercentage.value]);
+    emit("pageName", ["メモ"]);
+  } catch (e) {
+    if (e instanceof NoUserSessionError) {
+      router.push("/login");
+    } else {
+      throw e;
+    }
+  }
 };
 
 const toggleFavorite = async (i) => {

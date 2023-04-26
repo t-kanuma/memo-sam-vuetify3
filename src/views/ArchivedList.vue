@@ -32,6 +32,7 @@
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn
+                    :loading="removeLoader"
                     color="accent"
                     variant="flat"
                     @click="removeArchive(i)"
@@ -79,7 +80,7 @@ const noticeAfterUnarchive = ref(false);
 const archives = ref([]);
 
 const showArchive = async () => {
-  archives.value = await getArchives();
+  archives.value = (await getArchives()).memos;
   emit("pageName", ["アーカイブ"]);
 };
 
@@ -93,15 +94,17 @@ const unarchiveMemo = async (i) => {
 
 // delete section
 const deletionDialogShown = ref(false);
-
+const removeLoader = ref(false);
 const cancelDeletion = () => {
   deletionDialogShown.value = false;
 };
 
 const removeArchive = async (i) => {
+  removeLoader.value = true;
   const archiveToRemove = archives.value[i];
   console.log(archiveToRemove);
   await deleteArchive(archiveToRemove.id);
+  removeLoader.value = false;
   deletionDialogShown.value = false;
   await showArchive();
 };

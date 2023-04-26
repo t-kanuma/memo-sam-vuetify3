@@ -13,7 +13,7 @@ const router = createRouter({
     {
       path: "/",
       component: Content,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: false },
       redirect: () => {
         return { name: "MemoList" };
       },
@@ -22,13 +22,13 @@ const router = createRouter({
           path: "/memos",
           name: "MemoList",
           component: MemoList,
-          meta: { requiresAuth: true },
+          meta: { requiresAuth: false },
         },
         {
           path: "/archives",
           name: "ArchivedList",
           component: ArchivedList,
-          meta: { requiresAuth: true },
+          meta: { requiresAuth: false },
         },
       ],
     },
@@ -45,6 +45,13 @@ const router = createRouter({
   ],
 });
 
+// ここの要否について
+// エラーを発生させるタイミングの問題
+// 1. APIアクセスが発生した時にエラーにするか
+// 2. 画面アクセスした際にエラーにするか
+// 前者は発生するタイミングが遅く、ユーザーに無駄作業が起こる可能性がある。
+// 後者は、ユーザーがログインしているかどうかを毎回API Callする必要がある。トータルのレスポンスタイムが増える。
+// 頻度で判断すれば良いが、今の画面では表示時にAPI Callしているので、前者の方が良いと思う。
 // router.beforeEach((to, from, next) => {
 //   if (to.matched.some((record) => record.meta.requiresAuth)) {
 //     (async () => {

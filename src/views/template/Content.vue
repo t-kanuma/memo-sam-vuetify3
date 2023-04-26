@@ -74,6 +74,8 @@ import { ref } from "vue";
 import { logout as doLogout } from "@/modules/auth.js";
 import { useFavTotalStore } from "@/stores/favoriteTotal";
 import { storeToRefs } from "pinia";
+import { useRouter } from "vue-router";
+const router = useRouter();
 
 // theme section
 const theme = useTheme();
@@ -112,9 +114,9 @@ const setDonePercentage = (percentageEvent) => {
   todoDonePercentage.value = percentageEvent[0];
 };
 
-// TODO ユーザーのID渡さないと。
 const logout = async () => {
   await doLogout();
+  router.push("/login");
 };
 </script>
 <style scoped></style>

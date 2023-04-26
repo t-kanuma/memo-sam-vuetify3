@@ -1,63 +1,139 @@
-import { useRouter } from "vue-router";
+import {
+  CognitoUserPool,
+  AuthenticationDetails,
+  CognitoUser,
+} from "amazon-cognito-identity-js";
 
-export const login = async (loginId, password) => {
-  const response = await fetch(
-    `${import.meta.env.VITE_API_BASE_URL}/auth/login`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId: loginId,
-        password: password,
-      }),
-    }
-  );
-  if (response.ok) {
-    const router = useRouter();
-    router.push("/");
-  } else {
-    throw new Error(`login resulted in ${response.status}`);
+/**
+ *
+ */
+const userPool = new CognitoUserPool({
+  UserPoolId: `${import.meta.env.VITE_COGNITO_USER_POOL_ID}`,
+  ClientId: `${import.meta.env.VITE_COGNITO_CLIENT_ID}`,
+});
+
+/**
+ *
+ */
+export class NoUserSessionError extends Error {
+  constructor(message = "No user session") {
+    super(message);
   }
-};
+}
 
-// todo userIdの追加
-export const logout = async () => {
-  const response = await fetch(
-    `${import.meta.env.VITE_API_BASE_URL}/auth/logout`,
-    {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-
-  if (response.ok) {
-    const router = useRouter();
-    router.push("/");
-  } else {
-    throw new Error(`logout resulted in ${response.status}`);
+/**
+ *
+ * @returns
+ */
+export const getUserSession = () => {
+  const cognitoUser = userPool.getCurrentUser();
+  if (!cognitoUser) {
+    return null;
   }
-};
 
-export const isLoggedIn = async () => {
-  try {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/auth/status`,
-      {
-        cache: "no-store",
-        method: "GET",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
+  return new Promise((resolve, reject) => {
+    cognitoUser.getSession((err, session) => {
+      if (err) {
+        reject(err);
       }
-    );
-    return response.status === 200;
-  } catch (error) {
-    console.log(JSON.stringify(error));
+
+      resolve(session);
+    });
+  });
+};
+
+/**
+ *
+ * @returns
+ */
+export const getIdToken = async () => {
+  try {
+    const userSession = await getUserSession();
+    if (!userSession) {
+      // 想定ケース
+      //   - 未ログインでURL直打ちの場合
+      throw new NoUserSessionError();
+    } else {
+      return userSession.getIdToken().getJwtToken();
+    }
+  } catch {
+    // 想定ケース: リフレッシュトークンが期限切れの場合
+    throw new NoUserSessionError();
   }
+};
+
+let cognitoUser = null;
+/**
+ *
+ * @param {*} userName
+ * @param {*} password
+ * @returns
+ */
+export const authenticate = async (userName, password) => {
+  if (!userName || !password) {
+    throw new Error("loginId or password is empty");
+  }
+
+  const user = { Username: userName, Pool: userPool };
+  cognitoUser = new CognitoUser(user);
+
+  const authenticationData = { Username: userName, Password: password };
+  const authenticationDetails = new AuthenticationDetails(authenticationData);
+
+  return new Promise((resolve, reject) => {
+    // この中で勝手にid/access/refreshをlocalStorageに保管してくれる。
+    // TODO Cookieに入れること。
+    cognitoUser.authenticateUser(authenticationDetails, {
+      onSuccess: resolve,
+      onFailure: reject,
+      newPasswordRequired: resolve,
+    });
+  });
+};
+
+// TODO これはいずれ消される。
+/**
+ *
+ * @param {*} userName
+ * @param {*} newPassword
+ * @returns
+ */
+export const completeNewPasswordChallenge = async (userName, newPassword) => {
+  if (!userName || !newPassword) {
+    throw new Error("loginId or NewPassword is empty");
+  }
+
+  return new Promise((resolve, reject) => {
+    cognitoUser.completeNewPasswordChallenge(newPassword, null, {
+      onSuccess: resolve,
+      onFailure: reject,
+    });
+  });
+};
+
+/**
+ *
+ * @returns
+ */
+export const logout = async () => {
+  const cognitoUser = userPool.getCurrentUser();
+  return new Promise((resolve) => {
+    cognitoUser.signOut(resolve());
+  });
+};
+
+/**
+ *
+ * @returns
+ */
+export const isloginSessionValid = () => {
+  const cognitoUser = userPool.getCurrentUser();
+  if (!cognitoUser) {
+    return false;
+  }
+
+  cognitoUser.getSession().then((session) => {
+    console.log(session);
+    return session.isValid();
+  });
 };

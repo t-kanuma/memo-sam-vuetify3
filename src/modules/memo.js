@@ -1,27 +1,31 @@
-import { useRouter } from "vue-router";
+import { getIdToken } from "@/modules/auth";
+import { handleFetchResponse } from "@/modules/common";
 
+/**
+ *
+ * @returns
+ */
 export const getMemos = async () => {
+  const idToken = await getIdToken();
   const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/memos`, {
     cache: "no-store",
     method: "GET",
-    mode: "cors",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`,
     },
   });
 
-  if (response.ok) {
-    return (await response.json()).memos;
-  } else if (response.status === 401) {
-    const router = useRouter();
-    router.push("/login");
-  } else {
-    // エラー画面に遷移
-    throw new Error(response.statusText);
-  }
+  return await handleFetchResponse(response);
 };
 
+/**
+ *
+ * @param {*} memo
+ * @returns
+ */
 export const updateMemo = async (memo) => {
+  const idToken = await getIdToken();
   const response = await fetch(
     `${import.meta.env.VITE_API_BASE_URL}/memos/${memo.id}`,
     {
@@ -29,35 +33,29 @@ export const updateMemo = async (memo) => {
       body: JSON.stringify(memo),
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${idToken}`,
       },
     }
   );
-  if (response.ok) {
-    return await response.json();
-  } else if (response.status === 401) {
-    const router = useRouter();
-    router.push("/login");
-  } else {
-    // エラー画面に遷移
-    throw new Error(response.statusText);
-  }
+
+  return await handleFetchResponse(response);
 };
 
+/**
+ *
+ * @param {*} newMemo
+ * @returns
+ */
 export const postMemo = async (newMemo) => {
+  const idToken = await getIdToken();
   const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/memos`, {
     method: "POST",
     body: JSON.stringify(newMemo),
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`,
     },
   });
-  if (response.ok) {
-    return await response.json();
-  } else if (response.status === 401) {
-    const router = useRouter();
-    router.push("/login");
-  } else {
-    // エラー画面に遷移
-    throw new Error(response.statusText);
-  }
+
+  return await handleFetchResponse(response);
 };
