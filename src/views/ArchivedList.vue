@@ -102,7 +102,6 @@ const cancelDeletion = () => {
 const removeArchive = async (i) => {
   removeLoader.value = true;
   const archiveToRemove = archives.value[i];
-  console.log(archiveToRemove);
   await deleteArchive(archiveToRemove.id);
   removeLoader.value = false;
   deletionDialogShown.value = false;
