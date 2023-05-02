@@ -3,7 +3,9 @@
  * @param {*} response
  * @returns
  */
-export const handleFetchResponse = async (response) => {
+export const handleFetchResponse = async (
+  response: Response
+): Promise<unknown> => {
   if (response.ok) {
     return await response.json();
   } else if (response.status === 401) {

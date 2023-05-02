@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { type Memo } from "@/types";
 
 // memo:useFavoriteTotalStoreはCallableな関数
 // = defineStoreの戻り値
@@ -12,8 +13,8 @@ export const useFavTotalStore = defineStore({
     timesTen: (state) => state.favTotal * 10,
   },
   actions: {
-    set(memos) {
-      this.favTotal = memos.value.filter((memo) => {
+    set(memos: Memo[]) {
+      this.favTotal = memos.filter((memo: Memo) => {
         return memo.favorite === true;
       }).length;
     },

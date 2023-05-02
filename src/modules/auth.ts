@@ -2,6 +2,9 @@ import {
   CognitoUserPool,
   AuthenticationDetails,
   CognitoUser,
+  type IAuthenticationDetailsData,
+  CognitoUserSession,
+  type ICognitoUserData,
   // CookieStorage,
 } from "amazon-cognito-identity-js";
 
@@ -30,32 +33,38 @@ const userPool = new CognitoUserPool({
   // Storage: new CookieStorage(cookieSetting),
 });
 
-let cognitoUser = null;
+let cognitoUser: CognitoUser | null = null;
 /**
  *
  * @param {*} userName
  * @param {*} password
  * @returns
  */
-export const authenticate = async (userName, password) => {
+export const authenticate = async (
+  userName: string,
+  password: string
+): Promise<CognitoUserSession> => {
   if (!userName || !password) {
     throw new Error("loginId or password is empty");
   }
 
-  const user = {
+  const user: ICognitoUserData = {
     Username: userName,
     Pool: userPool,
     // Storage: new CookieStorage(cookieSetting),
   };
   cognitoUser = new CognitoUser(user);
 
-  const authenticationData = { Username: userName, Password: password };
+  const authenticationData: IAuthenticationDetailsData = {
+    Username: userName,
+    Password: password,
+  };
   const authenticationDetails = new AuthenticationDetails(authenticationData);
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject): void => {
     // この中で勝手にid/access/refreshをlocalStorageに保管してくれる。
     // TODO Cookieに入れること。
-    cognitoUser.authenticateUser(authenticationDetails, {
+    cognitoUser?.authenticateUser(authenticationDetails, {
       onSuccess: resolve,
       onFailure: reject,
       newPasswordRequired: resolve,
@@ -70,13 +79,16 @@ export const authenticate = async (userName, password) => {
  * @param {*} newPassword
  * @returns
  */
-export const completeNewPasswordChallenge = async (userName, newPassword) => {
+export const completeNewPasswordChallenge = async (
+  userName: string,
+  newPassword: string
+): Promise<unknown> => {
   if (!userName || !newPassword) {
     throw new Error("loginId or NewPassword is empty");
   }
 
-  return new Promise((resolve, reject) => {
-    cognitoUser.completeNewPasswordChallenge(newPassword, null, {
+  return new Promise((resolve, reject): void => {
+    cognitoUser?.completeNewPasswordChallenge(newPassword, null, {
       onSuccess: resolve,
       onFailure: reject,
     });
@@ -87,7 +99,7 @@ export const completeNewPasswordChallenge = async (userName, newPassword) => {
  *
  * @returns
  */
-export const getUserSession = () => {
+export const getUserSession = (): Promise<CognitoUserSession> | null => {
   const cognitoUser = userPool.getCurrentUser();
   if (!cognitoUser) {
     // 未ログイン状態
@@ -96,21 +108,23 @@ export const getUserSession = () => {
 
   return new Promise((resolve, reject) => {
     // idTokenが期限切れの場合、refreshTokenを使って自動的に更新してくれる。
-    cognitoUser.getSession((err, session) => {
-      if (err) {
-        // refreshTokenが期限切れの場合
-        reject(err);
-      }
+    cognitoUser.getSession(
+      (err: Error | null, session: CognitoUserSession): void => {
+        if (err) {
+          // refreshTokenが期限切れの場合
+          reject(err);
+        }
 
-      resolve(session);
-    });
+        resolve(session);
+      }
+    );
   });
 };
 
 /**
  *
  */
-export const isLoggedIn = async () => {
+export const isLoggedIn = async (): Promise<boolean> => {
   try {
     const userSession = await getUserSession();
     if (!userSession) {
@@ -130,7 +144,7 @@ export const isLoggedIn = async () => {
  * UserSessionがある状態を前提としている。
  * @returns
  */
-export const getIdToken = async () => {
+export const getIdToken = async (): Promise<string> => {
   try {
     const userSession = await getUserSession();
     if (!userSession) {
@@ -147,7 +161,7 @@ export const getIdToken = async () => {
  *
  * UserSessionがある状態を前提としている。
  */
-export const getUsername = async () => {
+export const getUsername = async (): Promise<string> => {
   const cognitoUser = userPool.getCurrentUser();
   if (!cognitoUser) {
     throw new NoUserSessionError();
@@ -160,9 +174,10 @@ export const getUsername = async () => {
  *
  * @returns
  */
-export const logout = async () => {
+export const logout = async (): Promise<void> => {
   const cognitoUser = userPool.getCurrentUser();
-  return new Promise((resolve) => {
-    cognitoUser.signOut(resolve());
+
+  return new Promise((): void => {
+    cognitoUser?.signOut();
   });
 };

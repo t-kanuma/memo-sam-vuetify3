@@ -74,19 +74,21 @@
     </v-main>
   </div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { useTheme } from "vuetify";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, type Ref } from "vue";
 import { logout as doLogout } from "@/modules/auth.js";
 import { useFavTotalStore } from "@/stores/favoriteTotal";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { getUsername } from "@/modules/auth";
+import { type PageName, type PagePath } from "@/types";
+
 const router = useRouter();
 
 // theme section
 const theme = useTheme();
-const toggleTheme = () => {
+const toggleTheme = (): void => {
   theme.global.name.value =
     theme.global.name.value === "myCustomLightTheme"
       ? "myCustomDarkTheme"
@@ -94,20 +96,23 @@ const toggleTheme = () => {
 };
 
 // navigation section
-const menus = ref([
+const menusRaw: { icon: string; text: PageName; to: PagePath }[] = [
   { icon: "mdi-collage", text: "メモ", to: "/memos" },
   { icon: "mdi-archive", text: "アーカイブ", to: "/archives" },
-]);
+];
+
+const menus = ref(menusRaw);
+
 const navDrawn = ref(false);
 const closeMenu = () => {
   navDrawn.value = false;
 };
 
 // 画面上部の共通セクション
-const pageName = ref(null);
+const pageName: Ref<string | null> = ref(null);
 // emitハンドリング
-const setPageName = (pageNameEvent) => {
-  pageName.value = pageNameEvent[0];
+const setPageName = (pageNameHandled: string) => {
+  pageName.value = pageNameHandled;
 };
 
 // memo:storeの取得
@@ -115,10 +120,10 @@ const favTotalStore = useFavTotalStore();
 // memo:storeから値を取得してrefに格納
 const { favTotal } = storeToRefs(favTotalStore);
 
-const todoDonePercentage = ref(0);
+const todoDonePercentage: Ref<number> = ref(0);
 // emitハンドリング
-const setDonePercentage = (percentageEvent) => {
-  todoDonePercentage.value = percentageEvent[0];
+const setDonePercentage = (percentageHandled: number) => {
+  todoDonePercentage.value = percentageHandled;
 };
 
 const logout = async () => {
@@ -126,7 +131,7 @@ const logout = async () => {
   router.push("/login");
 };
 
-const userName = ref(null);
+const userName: Ref<string | undefined> = ref(undefined);
 onMounted(async () => {
   userName.value = await getUsername();
 });

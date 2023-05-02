@@ -42,7 +42,7 @@
         close-on-content-click
         color="primary"
       >
-        アーカイブしました。
+        {{ MESSAGE_AFTER_ARCHIVE }}
       </v-snackbar>
     </v-container>
     <NewMemoDialog @newMemoCreated="showMemos()" />
@@ -62,32 +62,37 @@
     ></v-progress-linear>
   </template>
 </template>
-<script setup>
+<script setup lang="ts">
 import { getMemos, updateMemo } from "@/modules/memo";
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, type Ref } from "vue";
 import { useFavTotalStore } from "@/stores/favoriteTotal";
 import NewMemoDialog from "@/components/NewMemoDialog.vue";
+import { type Memo, type InfoMessage, type EmitPattern } from "@/types";
 
 const renderReady = ref(false);
-const memos = ref([]);
-const emit = defineEmits(["todoDone", "pageName"]);
+const memos: Ref<Memo[]> = ref([]);
+const MESSAGE_AFTER_ARCHIVE: InfoMessage = "アーカイブしました。";
+
+// const emit = defineEmits(["todoDone", "pageName"]);
+
+const emit = defineEmits<EmitPattern>();
 // memo:storeの取得
 const favTotalStore = useFavTotalStore();
 
 const showMemos = async () => {
   memos.value = (await getMemos()).memos;
-  favTotalStore.set(memos);
-  emit("todoDone", [todoDonePercentage.value]);
-  emit("pageName", ["メモ"]);
+  favTotalStore.set(memos.value);
+  emit("todoDone", todoDonePercentage.value);
+  emit("pageName", "メモ");
 };
 
-const toggleFavorite = async (i) => {
+const toggleFavorite = async (i: number) => {
   const currentMemo = memos.value[i];
   currentMemo.favorite = !currentMemo.favorite;
 
   await updateMemo(currentMemo);
   // pinia使っているのでemitで更新する必要はない。
-  favTotalStore.set(memos);
+  favTotalStore.set(memos.value);
 };
 
 const todoDonePercentage = computed(() => {
@@ -97,15 +102,15 @@ const todoDonePercentage = computed(() => {
   return (todoDoneTotal / memos.value.length) * 100;
 });
 
-const toggleTodoCheckmark = async (i) => {
+const toggleTodoCheckmark = async (i: number) => {
   const currentMemo = memos.value[i];
   currentMemo.done = !currentMemo.done;
   await updateMemo(currentMemo);
-  emit("todoDone", [todoDonePercentage.value]);
+  emit("todoDone", todoDonePercentage.value);
 };
 
 const noticeAfterArchive = ref(false);
-const archiveMemo = async (i) => {
+const archiveMemo = async (i: number) => {
   const memoToArchive = memos.value[i];
   memoToArchive.archived = true;
   await updateMemo(memoToArchive);

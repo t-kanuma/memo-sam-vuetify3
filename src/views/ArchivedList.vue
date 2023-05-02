@@ -25,9 +25,7 @@
                   >Warn!</v-toolbar
                 >
                 <v-card-text class="pa-4">
-                  <span class="text-glay"
-                    >このメモは完全に削除されます。<br />よろしいですか？</span
-                  >
+                  <span class="text-glay">{{ MESSAGE_ON_DELETION }}</span>
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
@@ -39,7 +37,11 @@
                   >
                     OK
                   </v-btn>
-                  <v-btn color="accent" text @click="cancelDeletion()">
+                  <v-btn
+                    color="accent"
+                    variant="text"
+                    @click="cancelDeletion()"
+                  >
                     キャンセル
                   </v-btn>
                 </v-card-actions>
@@ -59,7 +61,7 @@
       close-on-content-click
       color="primary"
     >
-      メモに戻しました。
+      {{ MESSAGE_UNARCHIVED }}
     </v-snackbar>
   </template>
   <template v-else>
@@ -69,22 +71,28 @@
     ></v-progress-linear>
   </template>
 </template>
-<script setup>
-import { ref, onMounted } from "vue";
+<script setup lang="ts">
+import { ref, onMounted, type Ref, defineEmits } from "vue";
 import { getArchives, deleteArchive } from "@/modules/archive";
 import { updateMemo } from "@/modules/memo";
+import { type Memo, type InfoMessage, type EmitPattern } from "@/types";
 
-const emit = defineEmits(["todoDone", "pageName"]);
 const renderReady = ref(false);
 const noticeAfterUnarchive = ref(false);
-const archives = ref([]);
+const archives: Ref<Memo[]> = ref([]);
 
+const MESSAGE_UNARCHIVED: InfoMessage = "メモに戻しました。";
+const MESSAGE_ON_DELETION: InfoMessage =
+  "このメモは完全に削除されます。よろしいですか？";
+
+const emit = defineEmits<EmitPattern>();
 const showArchive = async () => {
   archives.value = (await getArchives()).memos;
-  emit("pageName", ["アーカイブ"]);
+
+  emit("pageName", "アーカイブ");
 };
 
-const unarchiveMemo = async (i) => {
+const unarchiveMemo = async (i: number) => {
   const archiveToUnarchive = archives.value[i];
   archiveToUnarchive.archived = false;
   await updateMemo(archiveToUnarchive);
@@ -99,7 +107,7 @@ const cancelDeletion = () => {
   deletionDialogShown.value = false;
 };
 
-const removeArchive = async (i) => {
+const removeArchive = async (i: number) => {
   removeLoader.value = true;
   const archiveToRemove = archives.value[i];
   await deleteArchive(archiveToRemove.id);

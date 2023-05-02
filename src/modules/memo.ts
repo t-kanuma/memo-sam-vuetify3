@@ -1,5 +1,6 @@
 import { getIdToken } from "@/modules/auth";
 import { handleFetchResponse } from "@/modules/common";
+import { type Memo } from "@/types";
 
 /**
  *
@@ -21,10 +22,10 @@ export const getMemos = async () => {
 
 /**
  *
- * @param {*} memo
+ * @param memo
  * @returns
  */
-export const updateMemo = async (memo) => {
+export const updateMemo = async (memo: Memo): Promise<unknown> => {
   const idToken = await getIdToken();
   const response = await fetch(
     `${import.meta.env.VITE_API_BASE_URL}/memos/${memo.id}`,
@@ -43,10 +44,10 @@ export const updateMemo = async (memo) => {
 
 /**
  *
- * @param {*} newMemo
+ * @param newMemo
  * @returns
  */
-export const postMemo = async (newMemo) => {
+export const postMemo = async (newMemo: Memo) => {
   const idToken = await getIdToken();
   const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/memos`, {
     method: "POST",

@@ -1,14 +1,8 @@
-import { createApp } from "vue";
-import App from "./App.vue";
-import router from "./router";
-import { createPinia } from "pinia";
-
-// Vuetify
+import "@mdi/font/css/materialdesignicons.css";
 import "vuetify/styles";
 import { createVuetify } from "vuetify";
 import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";
-import "@mdi/font/css/materialdesignicons.css";
 
 const myCustomLightTheme = {
   dark: false,
@@ -34,7 +28,7 @@ const myCustomDarkTheme = {
   },
 };
 
-const vuetify = createVuetify({
+export default createVuetify({
   components,
   directives,
   theme: {
@@ -50,10 +44,3 @@ const vuetify = createVuetify({
     },
   },
 });
-
-const app = createApp(App);
-app.config.errorHandler = (err, vm, info) => {
-  console.error(`errorHandler: ${info}`, err);
-  router.replace({ name: "ErrorDestination" });
-};
-app.use(router).use(vuetify).use(createPinia()).mount("#app");

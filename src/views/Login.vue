@@ -46,31 +46,32 @@
     >
   </div>
 </template>
-<script setup>
-import { ref } from "vue";
+<script setup lang="ts">
+import { ref, type Ref } from "vue";
 import { authenticate, completeNewPasswordChallenge } from "../modules/auth";
 import { useRouter } from "vue-router";
+import { type ErrorMessage, type ValidationRule } from "@/types";
 const router = useRouter();
 
-const loginName = ref(null);
+const loginName: Ref<string> = ref("");
 
-const password = ref(null);
+const password: Ref<string> = ref("");
 const passwordHidden = ref(true);
 
-const form = ref(null);
-const loginFailedMessage = ref(null);
+const form: Ref<any> = ref(null);
+const loginFailedMessage: Ref<ErrorMessage | undefined> = ref();
 
-const userNameRules = [
-  (v) => !!v || "必須です。",
-  (v) => {
+const userNameRules: ValidationRule[] = [
+  (v: string) => !!v || "必須です",
+  (v: string) => {
     const reg = new RegExp(/^[a-zA-Z1-9]+$/);
-    return reg.test(v) || "英字または数字のみにしてください。";
+    return reg.test(v) || "英字または数字のみにしてください";
   },
 ];
 
-const passwordRules = [
-  (v) => !!v || "必須です。",
-  (v) => (v || "").length >= 8 || "7文字以上にしてください",
+const passwordRules: ValidationRule[] = [
+  (v: string) => !!v || "必須です",
+  (v: string) => (v || "").length >= 8 || "8文字以上にしてください",
   // (v) => {
   //   const reg = new RegExp(/^[a-zA-Z1-9]+$/);
   //   return reg.test(v) || "英字または数字のみにしてください。";

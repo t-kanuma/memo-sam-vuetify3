@@ -72,24 +72,32 @@
     </v-card>
   </v-dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import { postMemo } from "@/modules/memo";
-import { ref, reactive } from "vue";
+import { ref, reactive, type Ref } from "vue";
+import { type ValidationRule, type EmitPattern } from "@/types";
 
-const newMemoForm = ref(null);
-const newMemo = reactive({
+const newMemoForm: Ref<any> = ref(null);
+const newMemo: {
+  dialog: boolean;
+  loader: boolean;
+  title: string;
+  text: string;
+  titleRule: ValidationRule[];
+  textRule: ValidationRule[];
+} = reactive({
   dialog: false,
   loader: false,
-  title: null,
-  text: null,
+  title: "",
+  text: "",
   titleRule: [
-    (v) => !!v || "タイトルは必須です。",
-    (v) => v.length <= 20 || "タイトルは20文字以内で入力してください。",
+    (v: string) => !!v || "タイトルは必須です。",
+    (v: string) => v.length <= 20 || "タイトルは20文字以内で入力してください。",
   ],
-  textRule: [(v) => !!v || "本文は必須です。"],
+  textRule: [(v: string) => !!v || "本文は必須です。"],
 });
 
-const emit = defineEmits(["newMemoCreated"]);
+const emit = defineEmits<EmitPattern>();
 const saveNewMemo = async () => {
   if ((await newMemoForm.value.validate()).valid) {
     newMemo.loader = true;
@@ -97,11 +105,11 @@ const saveNewMemo = async () => {
       title: newMemo.title,
       text: newMemo.text,
     });
-    newMemo.title = null;
-    newMemo.text = null;
+    newMemo.title = "";
+    newMemo.text = "";
     newMemo.loader = false;
     newMemo.dialog = false;
-    emit("newMemoCreated", []);
+    emit("newMemoCreated");
   }
 };
 </script>
