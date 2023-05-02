@@ -40,7 +40,13 @@
           </div> </v-card-text
         ><v-card-actions
           ><v-spacer></v-spacer
-          ><v-btn variant="flat" color="accent" @click="login">ログイン</v-btn>
+          ><v-btn
+            variant="flat"
+            color="accent"
+            @click="login"
+            :loading="loginLoader"
+            >ログイン</v-btn
+          >
         </v-card-actions></v-form
       ></v-card
     >
@@ -78,8 +84,10 @@ const passwordRules: ValidationRule[] = [
   // },
 ];
 
+const loginLoader = ref(false);
 const login = async () => {
   if ((await form.value.validate()).valid) {
+    loginLoader.value = true;
     try {
       const session = await authenticate(loginName.value, password.value);
 
@@ -97,6 +105,7 @@ const login = async () => {
         router.push("/");
       }
     } catch (e) {
+      loginLoader.value = false;
       console.debug(e);
       loginFailedMessage.value = "ログインまたはパスワードに誤りがあります。";
     }
