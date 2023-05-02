@@ -68,6 +68,7 @@ import { onMounted, ref, computed, type Ref } from "vue";
 import { useFavTotalStore } from "@/stores/favoriteTotal";
 import NewMemoDialog from "@/components/NewMemoDialog.vue";
 import { type Memo, type InfoMessage, type EmitPattern } from "@/types";
+import { isMemoArchiveResp } from "@/modules/common";
 
 const renderReady = ref(false);
 const memos: Ref<Memo[]> = ref([]);
@@ -80,7 +81,11 @@ const emit = defineEmits<EmitPattern>();
 const favTotalStore = useFavTotalStore();
 
 const showMemos = async () => {
-  memos.value = (await getMemos()).memos;
+  const memoResp = await getMemos();
+  if (isMemoArchiveResp(memoResp)) {
+    memos.value = memoResp.memos;
+  }
+
   favTotalStore.set(memos.value);
   emit("todoDone", todoDonePercentage.value);
   emit("pageName", "メモ");

@@ -76,6 +76,7 @@ import { ref, onMounted, type Ref, defineEmits } from "vue";
 import { getArchives, deleteArchive } from "@/modules/archive";
 import { updateMemo } from "@/modules/memo";
 import { type Memo, type InfoMessage, type EmitPattern } from "@/types";
+import { isMemoArchiveResp } from "@/modules/common";
 
 const renderReady = ref(false);
 const noticeAfterUnarchive = ref(false);
@@ -87,7 +88,10 @@ const MESSAGE_ON_DELETION: InfoMessage =
 
 const emit = defineEmits<EmitPattern>();
 const showArchive = async () => {
-  archives.value = (await getArchives()).memos;
+  const archiveResp = await getArchives();
+  if (isMemoArchiveResp(archiveResp)) {
+    archives.value = archiveResp.memos;
+  }
 
   emit("pageName", "アーカイブ");
 };

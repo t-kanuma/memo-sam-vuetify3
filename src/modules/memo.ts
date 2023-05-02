@@ -1,6 +1,6 @@
 import { getIdToken } from "@/modules/auth";
 import { handleFetchResponse } from "@/modules/common";
-import { type Memo } from "@/types";
+import { type Memo, type InitMemo } from "@/types";
 
 /**
  *
@@ -47,7 +47,7 @@ export const updateMemo = async (memo: Memo): Promise<unknown> => {
  * @param newMemo
  * @returns
  */
-export const postMemo = async (newMemo: Memo) => {
+export const postMemo = async (newMemo: InitMemo) => {
   const idToken = await getIdToken();
   const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/memos`, {
     method: "POST",
