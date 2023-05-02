@@ -75,7 +75,7 @@
 <script setup lang="ts">
 import { postMemo } from "@/modules/memo";
 import { ref, reactive, type Ref } from "vue";
-import { type ValidationRule, type EmitPattern } from "@/types";
+import { type ValidationRule } from "@/types";
 
 const newMemoForm: Ref<any> = ref(null);
 const newMemo: {
@@ -97,7 +97,10 @@ const newMemo: {
   textRule: [(v: string) => !!v || "本文は必須です。"],
 });
 
-const emit = defineEmits<EmitPattern>();
+// const emit = defineEmits<EmitPattern>();
+const emit = defineEmits<{
+  (e: "newMemoCreated"): void;
+}>();
 const saveNewMemo = async () => {
   if ((await newMemoForm.value.validate()).valid) {
     newMemo.loader = true;

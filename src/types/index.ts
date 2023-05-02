@@ -21,11 +21,12 @@ type ArchiveResp = {
 
 export type MemoArchiveResp = MemoResp | ArchiveResp;
 
-export type EmitPattern = {
-  (e: "todoDone", percentage: number): void;
-  (e: "pageName", pageName: string): void;
-  (e: "newMemoCreated"): void;
-};
+// https://stackoverflow.com/questions/73422711/vue3-ts-setup-import-emits-props-type-to-use-with-defineemits-and-defineprops
+// export type EmitPattern = {
+//   (e: "todoDone", percentage: number): void;
+//   (e: "pageName", pageName: string): void;
+//   (e: "newMemoCreated"): void;
+// };
 
 export type PageName = "メモ" | "アーカイブ";
 export type PagePath = "/memos" | "/archives";

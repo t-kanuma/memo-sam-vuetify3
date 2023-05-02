@@ -8,7 +8,7 @@ module.exports = {
     "eslint:recommended",
     "@vue/eslint-config-typescript",
     // https://github.com/vuejs/eslint-config-prettier#use-separate-commands-for-linting-and-formatting
-    // VSCodeのPrettir Pluginをインストールして、settings.jsonでファイル保存時に効くようにする。
+    // VSCodeのPrettir Pluginをインストールして、settings.jsonでファイル保存時に効くようにする!!!
     "@vue/eslint-config-prettier/skip-formatting",
   ],
   parserOptions: {

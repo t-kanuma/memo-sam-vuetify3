@@ -28,7 +28,7 @@ const myCustomDarkTheme = {
   },
 };
 
-export default createVuetify({
+export const vuetify = createVuetify({
   components,
   directives,
   theme: {

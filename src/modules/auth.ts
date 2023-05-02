@@ -177,7 +177,7 @@ export const getUsername = async (): Promise<string> => {
 export const logout = async (): Promise<void> => {
   const cognitoUser = userPool.getCurrentUser();
 
-  return new Promise((): void => {
-    cognitoUser?.signOut();
+  return new Promise((resolve): void => {
+    cognitoUser?.signOut(resolve);
   });
 };

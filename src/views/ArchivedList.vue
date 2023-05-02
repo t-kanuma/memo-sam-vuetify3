@@ -72,10 +72,10 @@
   </template>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, type Ref, defineEmits } from "vue";
+import { ref, onMounted, type Ref } from "vue";
 import { getArchives, deleteArchive } from "@/modules/archive";
 import { updateMemo } from "@/modules/memo";
-import { type Memo, type InfoMessage, type EmitPattern } from "@/types";
+import { type Memo, type InfoMessage } from "@/types";
 import { isMemoArchiveResp } from "@/modules/common";
 
 const renderReady = ref(false);
@@ -86,7 +86,11 @@ const MESSAGE_UNARCHIVED: InfoMessage = "メモに戻しました。";
 const MESSAGE_ON_DELETION: InfoMessage =
   "このメモは完全に削除されます。よろしいですか？";
 
-const emit = defineEmits<EmitPattern>();
+// const emit = defineEmits<EmitPattern>();
+const emit = defineEmits<{
+  (e: "todoDone", percentage: number): void;
+  (e: "pageName", pageName: string): void;
+}>();
 const showArchive = async () => {
   const archiveResp = await getArchives();
   if (isMemoArchiveResp(archiveResp)) {

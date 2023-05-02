@@ -67,7 +67,7 @@ import { getMemos, updateMemo } from "@/modules/memo";
 import { onMounted, ref, computed, type Ref } from "vue";
 import { useFavTotalStore } from "@/stores/favoriteTotal";
 import NewMemoDialog from "@/components/NewMemoDialog.vue";
-import { type Memo, type InfoMessage, type EmitPattern } from "@/types";
+import { type Memo, type InfoMessage } from "@/types";
 import { isMemoArchiveResp } from "@/modules/common";
 
 const renderReady = ref(false);
@@ -76,7 +76,11 @@ const MESSAGE_AFTER_ARCHIVE: InfoMessage = "アーカイブしました。";
 
 // const emit = defineEmits(["todoDone", "pageName"]);
 
-const emit = defineEmits<EmitPattern>();
+// const emit = defineEmits<EmitPattern>();
+const emit = defineEmits<{
+  (e: "todoDone", percentage: number): void;
+  (e: "pageName", pageName: string): void;
+}>();
 // memo:storeの取得
 const favTotalStore = useFavTotalStore();
 
